@@ -147,6 +147,11 @@ $form.addEventListener('change', async ({ target: $field }) => {
         indicateSuccess($field.closest('.inline-fields') || $field.closest('label'));
 
     switch ($field.name) {
+        case 'set_title_preface':
+            if (!$field.checked) {
+                browser.runtime.sendMessage({ type: 'clearTitlePreface' });
+                return;
+            }
         case 'title_preface_prefix':
         case 'title_preface_postfix':
         case 'show_badge':
@@ -169,4 +174,6 @@ $form.addEventListener('change', async ({ target: $field }) => {
 $form.addEventListener('click', ({ target: $el }) => {
     if ($el.classList.contains('help'))
         return openHelp($el.getAttribute('href'));
+    if ($el.id === 'restart')
+        browser.runtime.reload();
 });

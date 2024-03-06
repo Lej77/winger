@@ -1,3 +1,4 @@
+import './background.init.js';
 import * as Winfo from './winfo.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
@@ -10,12 +11,10 @@ import * as Name from '../name.js';
 
 //@ -> state
 function debug() {
-    const modules = { Storage, Winfo, Name, Action, SendMenu, Stash, UnstashMenu };
+    const modules = { Storage, Winfo, Name, Action, Chrome, SendMenu, Stash, UnstashMenu };
     console.log(`Debug mode on - Exposing: ${Object.keys(modules).join(', ')}`);
     Object.assign(window, modules);
 }
-
-init();
 
 browser.windows.onCreated.addListener(onWindowCreated);
 browser.windows.onFocusChanged.addListener(onWindowFocusChanged);
@@ -26,48 +25,6 @@ browser.menus.onClicked.addListener(onMenuClicked);
 
 browser.runtime.onMessage.addListener(onRequest);
 browser.runtime.onMessageExternal.addListener(onExternalRequest);
-
-//@ state -> state
-async function init() {
-    const [info, winfos] = await Promise.all([
-        Storage.init(),
-        Winfo.getAll(['focused', 'firstSeen', 'givenName', 'minimized']),
-    ]);
-
-    Stash.init(info);
-
-    // Update chromes with names; resolve any name duplication, in case any named windows were restored while Winger was not active
-    // winfos should be in id-ascending order, which shall be assumed as age-descending; the newer of any duplicate pair found is renamed
-
-    const nameMap = new Name.NameMap();
-
-    for (let { id, focused, firstSeen, givenName, minimized } of winfos) {
-        if (givenName && nameMap.findId(givenName)) {
-            givenName = nameMap.uniquify(givenName);
-            Name.save(id, givenName);
-        }
-        nameMap.set(id, givenName);
-
-        if (focused) {
-            Storage.set({ _focused_window_id: id });
-            Winfo.saveLastFocused(id);
-        }
-
-        if (!firstSeen)
-            Winfo.saveFirstSeen(id);
-
-        if (minimized && info.unload_minimized_window)
-            Auto.unloadWindow(id);
-    }
-    Chrome.update(nameMap);
-
-    // Open help page if major or minor version has changed
-    const version = browser.runtime.getManifest().version;
-    if (version.split('.', 2).join('.') !== info.__version?.split('.', 2).join('.')) {
-        Action.openHelp();
-        Storage.set({ __version: version });
-    }
-}
 
 //@ (Object) -> state
 async function onWindowCreated(window) {
@@ -142,23 +99,31 @@ function onMenuClicked(info, tab) {
 async function onRequest(request) {
     switch (request.type) {
         case 'popup': {
-            const [winfos, settings, allowedPrivate] = await Promise.all([
-                Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'titleSansName', 'type']),
-                Storage.getDict(['show_popup_bring', 'show_popup_send', 'enable_stash']),
+            const [flags, allow_private] = await Promise.all([
+                Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash']),
                 browser.extension.isAllowedIncognitoAccess(),
             ]);
-            return { ...Winfo.arrange(winfos), settings, allowedPrivate };
+            flags.allow_private = allow_private;
+            const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
+            winfoProps.push(flags.set_title_preface ?
+                'titleSansName' : 'title');
+            return { ...Winfo.arrange(await Winfo.getAll(winfoProps)), flags };
         }
+
         case 'stash':
-            return Stash.stash(request.windowId, request.close);
+            return Stash.stash(request.windowId, request.name, request.close);
+
         case 'stashInit': {
             const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
             return Stash.init(settings);
         }
+
         case 'action':
             return Action.execute(request);
+
         case 'help':
             return Action.openHelp();
+
         case 'update': {
             const { windowId, name } = request;
             if (windowId && name)
@@ -167,8 +132,13 @@ async function onRequest(request) {
             const nameMap = (new Name.NameMap()).populate(winfos);
             return Chrome.update(nameMap);
         }
+
+        case 'clearTitlePreface':
+            return Chrome.clearTitlePreface();
+
         case 'warn':
             return Chrome.showWarningBadge();
+
         case 'debug':
             return debug();
     }

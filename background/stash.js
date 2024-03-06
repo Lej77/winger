@@ -63,18 +63,28 @@ folderMap.findBookmarkless = title => {
 
 // Turn window/tabs into folder/bookmarks.
 // Create folder if nonexistent, save tabs as bookmarks in folder. Close window if remove is true.
-//@ (Number, Boolean), state -> state
-export async function stash(windowId, remove = true) {
-    const [name, tabs] = await Promise.all([
-        Name.load(windowId),
+//@ (Number, String, Boolean), state -> state
+export async function stash(windowId, name, remove = true) {
+    const [tabs, windows] = await Promise.all([
         browser.tabs.query({ windowId }),
+        remove && browser.windows.getAll(),
     ]);
-    if (remove)
-        browser.windows.remove(windowId);
+    const isLoneWindow = windows?.length === 1;
+
+    if (remove) {
+        // Close or minimize now for immediate visual feedback
+        isLoneWindow
+        ? browser.windows.update(windowId, { state: 'minimized' })
+        : browser.windows.remove(windowId);
+    }
+
     const folderId = (await getTargetFolder(name)).id;
     nowProcessing.add(folderId);
     await saveTabs(tabs, folderId, name);
     nowProcessing.delete(folderId);
+
+    if (remove && isLoneWindow)
+        browser.windows.remove(windowId); // Close lone window only after stashing completed
 }
 
 // For a given name (folder title), return a matching bookmarkless folder, otherwise return a new folder.
@@ -87,19 +97,19 @@ async function getTargetFolder(name) {
 }
 
 //@ ([Object], Number, String), state -> state
-async function saveTabs(tabs, folderId, name) {
+async function saveTabs(tabs, folderId, logName) {
     const count = tabs.length;
     const creatingBookmarks = new Array(count);
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
-        creatingBookmarks[i] = createBookmark(tabs[i], folderId, name);
+        creatingBookmarks[i] = createBookmark(tabs[i], folderId, logName);
     await Promise.all(creatingBookmarks);
 }
 
 //@ (Object, Number) -> (Object), state
-async function createBookmark(tab, parentId, name) {
+async function createBookmark(tab, parentId, logName) {
     const url = Auto.deplaceholderize(tab.url);
     const { title } = tab;
-    console.log(`Stashing ${name} | ${url} | ${title}`);
+    console.log(`Stashing ${logName} | ${url} | ${title}`);
     return createNode({ parentId, url, title });
 }
 
@@ -130,12 +140,15 @@ async function unstashSingleTab(node, remove) {
 
 //@ (Object, Boolean) -> (Object), state
 async function unstashWindow(folder, remove) {
-    const window = await browser.windows.create();
+    const [window, auto_name_unstash] = await Promise.all([
+        browser.windows.create(),
+        Storage.getValue('auto_name_unstash'),
+    ]);
     const windowId = window.id;
     const folderId = folder.id;
     const name = folder.title;
     nowProcessing.add(folderId).add(windowId);
-    nameWindow(windowId, name);
+    auto_name_unstash && nameWindow(windowId, name);
     populateWindow(windowId, window.tabs[0].id, folderId, name, remove);
 }
 
@@ -150,10 +163,10 @@ async function nameWindow(windowId, name) {
 }
 
 //@ (Number, Number, String, String, Boolean) -> state
-async function populateWindow(windowId, initTabId, folderId, name, remove) {
+async function populateWindow(windowId, initTabId, folderId, logName, remove) {
     const { bookmarks, subfolders } = await readFolder(folderId);
 
-    const openingTabs = bookmarks.map(bookmark => openTab(bookmark, windowId, name));
+    const openingTabs = bookmarks.map(bookmark => openTab(bookmark, windowId, logName));
     Promise.any(openingTabs).then(() => browser.tabs.remove(initTabId));
     await Promise.all(openingTabs);
     nowProcessing.delete(windowId);
@@ -177,8 +190,8 @@ async function readFolder(folderId) {
 }
 
 //@ ({String, String}, Number) -> (Promise: Object), state
-function openTab({ url, title }, windowId, name) {
-    console.log(`Unstashing ${name} | ${url} | ${title}`);
+function openTab({ url, title }, windowId, logName) {
+    console.log(`Unstashing ${logName} | ${url} | ${title}`);
     return Action.openTab({ url, title, windowId, discarded: true });
 }
 
@@ -194,8 +207,8 @@ const isRootId = nodeId => ROOT_IDS.has(nodeId); //@ (Number) -> (Boolean)
 
 //@ (Object) -> (Boolean)
 const isSeparator = node => node.type === 'separator';
-const isFolder    = node => node.type === 'folder';    //@ (Object) -> (Boolean)
-const isBookmark  = node => node.type === 'bookmark';  //@ (Object) -> (Boolean)
+const isFolder    = node => node.type === 'folder';
+const isBookmark  = node => node.type === 'bookmark';
 
 const getNode = async nodeId => (await browser.bookmarks.get(nodeId))[0]; //@ (Number), state -> (Object)
 const getChildNodes = parentId => browser.bookmarks.getChildren(parentId); //@ (Number), state -> (Promise: [Object])

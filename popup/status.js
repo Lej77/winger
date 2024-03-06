@@ -1,5 +1,6 @@
 import { isOS } from '../utils.js';
 import {
+    FLAGS,
     $status,
     isNameField,
 } from './common.js';
@@ -10,7 +11,7 @@ const count = {
     windows: 0,
     tabs: 0,
     selectedTabs: 0,
-};
+}
 
 const statusType = {
     stashShift: {
@@ -35,7 +36,7 @@ const statusType = {
     },
     oneWindow: {
         condition: () => count.windows === 1,
-        content: `1 window - Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add more!`,
+        content: `1 window &ndash; Press <kbd>${isOS('Mac OS') ? 'Cmd' : 'Ctrl'}</kbd>+<kbd>N</kbd> to add another!`,
     },
     default: {
         condition: () => true,
@@ -47,8 +48,8 @@ const statusType = {
 }
 
 //@ ([Object], Number, {Boolean}), state -> state
-export async function init(currentWinfo, otherWinfos, { enable_stash }) {
-    if (!enable_stash)
+export async function init(currentWinfo, otherWinfos) {
+    if (!FLAGS.enable_stash)
         delete statusType.stashShift;
 
     count.windows = 1 + otherWinfos.length;

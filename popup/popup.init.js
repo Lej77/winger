@@ -1,4 +1,5 @@
 import {
+    FLAGS,
     $body,
     $currentWindowRow,
     $omnibox,
@@ -16,15 +17,19 @@ import * as Request from './request.js';
 Request.popup().then(onSuccess).catch(onError);
 
 //@ ({ Object, [Object], Object }) -> state
-function onSuccess({ currentWinfo, otherWinfos, settings, allowedPrivate }) {
-    markReopen(otherWinfos, currentWinfo.incognito);
-    populate(currentWinfo, otherWinfos, settings);
+function onSuccess({ currentWinfo, otherWinfos, flags }) {
+    Object.assign(FLAGS, flags);
+
+    const hasName = currentWinfo.givenName || otherWinfos.find(winfo => winfo.givenName);
+    $body.classList.toggle('nameless', !hasName);
+
+    addRows(currentWinfo, otherWinfos);
     $names.push(...$body.querySelectorAll('.name'));
 
-    Omnibox.init(settings, allowedPrivate);
-    Status.init(currentWinfo, otherWinfos, settings);
+    Omnibox.init();
     Filter.init();
-    indicateReopenTabs();
+    Status.init(currentWinfo, otherWinfos);
+
     lockHeight($otherWindowsList);
 }
 
@@ -46,18 +51,11 @@ function onError() {
 }
 
 
-// Add reopen property to other-winfos that do not share the same private status as the current-winfo.
-// Indicates that a send/bring action to the other-window will be a reopen operation.
-//@ ([Object], Boolean) -> state
-function markReopen(otherWinfos, isCurrentIncognito) {
-    for (const winfo of otherWinfos)
-        winfo.reopen = winfo.incognito !== isCurrentIncognito;
-}
-
 // Populate $otherWindowsList and $otherWindowRows with rows
 //@ (Object, [Object], Object) -> state
-function populate(currentWinfo, otherWinfos, settings) {
-    Row.initCurrent(settings);
+function addRows(currentWinfo, otherWinfos) {
+    Row.initCurrent();
+    const currentIncognito = currentWinfo.incognito;
     const $rowsFragment = document.createDocumentFragment();
     let $minHeading = $otherWindowsList.firstElementChild; // "---Minimized---"
     let minHeadingIndex = -1, index = 0;
@@ -65,7 +63,7 @@ function populate(currentWinfo, otherWinfos, settings) {
     for (const winfo of otherWinfos) {
         if (minHeadingIndex === -1 && winfo.minimized)
             minHeadingIndex = index;
-        $rowsFragment.appendChild(Row.createOther(winfo));
+        $rowsFragment.appendChild(Row.createOther(winfo, currentIncognito));
         index++;
     }
     $otherWindowsList.appendChild($rowsFragment);
@@ -96,7 +94,7 @@ const Row = {
     CELL_SELECTORS: new Set(['.send', '.bring', '.name', '.tabCount']),
 
     //@ (Object) -> state
-    initCurrent(settings) {
+    initCurrent() {
         // Remove any toggled-off buttons
         const buttons = [
             ['show_popup_bring', '.bring'],
@@ -105,7 +103,7 @@ const Row = {
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {
             const $button = $currentWindowRow.querySelector(selector);
-            if (settings[setting]) {
+            if (FLAGS[setting]) {
                 $button.hidden = false;
             } else {
                 $button.remove();
@@ -117,15 +115,18 @@ const Row = {
             document.documentElement.style.setProperty('--button-count', buttonCount);
     },
 
-    //@ (Object) -> (Object)
-    createOther(winfo) {
+    //@ (Object, Boolean) -> (Object)
+    createOther(winfo, currentIncognito) {
         const $row = $currentWindowRow.cloneNode(true);
         Row.hydrate($row, winfo);
         // Disable tab action buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
             $row.querySelectorAll('.tabAction').forEach(Row.disableElement);
             $row.classList.add('tabless');
-        }
+        } else
+        // Indicate if a send/bring action to this window will be a reopen operation
+        if (winfo.incognito != currentIncognito)
+            $row.classList.add('reopenTabs');
         return $row;
     },
 
@@ -137,8 +138,8 @@ const Row = {
         $row.$name.tabIndex = 0;
     },
 
-    //@ (Object, { Number, Boolean, Boolean, String, Number }) -> state
-    hydrate($row, { givenName, id, incognito, minimized, tabCount, titleSansName }) {
+    //@ (Object, { String, Number, Boolean, Boolean, Number, String, String }) -> state
+    hydrate($row, { givenName, id, incognito, minimized, tabCount, title, titleSansName }) {
         // Add references to row's cells, and in each cell a reference back to the row
         for (const selector of Row.CELL_SELECTORS) {
             const $cell = $row.querySelector(selector);
@@ -150,7 +151,9 @@ const Row = {
         $row._id = id;
         $row.$name._id = id;
         $row.$name.value = givenName;
-        $row.$name.placeholder = titleSansName;
+        $row.$name.title = titleSansName || title || '';
+        if (titleSansName)
+            $row.$name.placeholder = titleSansName;
         $row.$tabCount.textContent = tabCount;
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
@@ -163,16 +166,6 @@ const Row = {
         $el.removeAttribute('data-action');
     },
 
-}
-
-const isPrivate = $row => $row.classList.contains('private'); //@ (Object) -> (Boolean)
-
-//@ state -> state
-function indicateReopenTabs() {
-    const currentIsPrivate = isPrivate($currentWindowRow);
-    for (const $row of $otherWindowRows)
-        if (isPrivate($row) != currentIsPrivate)
-            $row.classList.add('reopenTabs');
 }
 
 //@ (Object) -> state

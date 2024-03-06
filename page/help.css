@@ -96,11 +96,12 @@ img {
   background-color: var(--theme-bg);
   border: none;
   border-radius: 50%;
+  line-height: 1;
+  aspect-ratio: 1;
   cursor: pointer;
 }
 .themeBtn::after {
   content: var(--theme-icon);
-  font-size: x-large;
 }
 .dark .themeBtn {
   --theme-icon: var(--dark-theme-icon);
@@ -140,38 +141,6 @@ img {
 }
 .bordered-left {
   border-left: 3px solid var(--page-box-border-color);
-}
-
-.tabPanelGroup nav {
-  display: flex;
-}
-.tabPanelGroup button {
-  flex-grow: 1;
-  background-color: var(--page-bg-color);
-  color: var(--page-text-color);
-  border: 3px solid var(--page-box-border-color);
-  white-space: nowrap;
-  font-size: 1rem;
-  padding: .5rem 2rem;
-  border-radius: 1rem 1rem 0 0;
-  cursor: pointer;
-}
-.tabPanelGroup button:not(:first-child) {
-  margin-left: -3px;
-}
-.tabPanelGroup button[aria-selected="true"] {
-  border-bottom-width: 0;
-  padding-bottom: calc(.5rem + 3px);
-}
-.tabPanelGroup summary,
-.tabPanelGroup details:not([open]) {
-  display: none;
-}
-.tabPanelGroup details {
-  border: 3px solid var(--page-box-border-color);
-  border-radius: 0 0 1rem 1rem;
-  margin-top: -3px;
-  padding: 1rem;
 }
 
 :target {

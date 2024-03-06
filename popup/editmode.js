@@ -15,9 +15,9 @@ import indicateSuccess from '../success.js';
 
 export let isActive = false; // Indicates if popup is in edit mode
 
-//@ (Object|undefined), state -> state
-export function toggle($name = $currentWindowRow.$name) {
-    isActive ? done() : activate($name);
+//@ state -> state
+export function toggle() {
+    isActive ? done() : activate();
 }
 
 //@ state -> state
@@ -26,7 +26,6 @@ function activate() {
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
-
     if ($currentWindowRow.$name === document.activeElement)
         rememberNameNow($currentWindowRow.$name);
 }
@@ -110,7 +109,7 @@ export function handleKeyUp({ target, key }) {
     return true;
 }
 
-// Remember $name's value at this time (usual case: when focused).
+// Remember $name's value at this time (cases: when entering edit mode, and when $name is focused).
 //@ (Object) -> state
 function rememberNameNow($name) {
     $name._original = $name.value;
@@ -120,9 +119,11 @@ function rememberNameNow($name) {
 // Otherwise: proceed to save, indicate success and return true.
 //@ (Object) -> (Boolean), state|nil
 async function trySaveName($name) {
+    const originalName = $name._original;
+
     // Revert if marked invalid
     if ($name.classList.contains('error')) {
-        $name.value = $name._original;
+        $name.value = originalName;
         clearErrors();
         return false;
     }
@@ -131,7 +132,7 @@ async function trySaveName($name) {
     $name.value = name;
 
     // Skip save if unchanged
-    if (name === $name._original)
+    if (name === originalName)
         return true;
 
     // Save
@@ -140,11 +141,12 @@ async function trySaveName($name) {
         Request.updateChrome(windowId, name);
         nameMap.set(windowId, name);
         indicateSuccess($name.$row);
+        $body.classList.toggle('nameless', !nameMap.hasName());
         return true;
     }
 
     // Save failed
-    $name.value = $name._original;
+    $name.value = originalName;
     return false;
 }
 

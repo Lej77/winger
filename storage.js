@@ -7,13 +7,16 @@ export const DEFAULT_SETTINGS = {
     unload_minimized_window: false,
     minimize_kick_window: false,
 
+    show_badge: false,
+    set_title_preface: undefined,
     title_preface_prefix: '',
     title_preface_postfix: ' - ',
-    show_badge: false,
 
     enable_stash: false,
     stash_home_root: 'toolbar_____',
     stash_home_folder: 'Stashed Windows',
+    stash_nameless_with_title: false,
+    auto_name_unstash: true,
 
     theme: '',
 };
