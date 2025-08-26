@@ -165,7 +165,7 @@ const INTERNAL = {
      * @see /page/options.js#onFieldChanged
      */
     async stashInit() {
-        const settings = await Storage.getDict(['enable_stash', 'stash_home_root', 'stash_home_folder']);
+        const settings = await Storage.getDict(['enable_stash', 'stash_home_root_id', 'stash_home_folder_title']);
         await Stash.init(settings);
         Stash.Menu.init();
     },

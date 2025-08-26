@@ -283,8 +283,8 @@ async function onFieldChanged({ target: $field }) {
             return;
 
         case 'enable_stash':
-        case 'stash_home_folder':
-        case 'stash_home_root':
+        case 'stash_home_folder_title':
+        case 'stash_home_root_id':
             if ($form.enable_stash.checked)
                 browser.runtime.sendMessage({ type: 'stashInit' });
             return;

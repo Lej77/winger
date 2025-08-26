@@ -26,8 +26,8 @@ export const STORED_PROPS = {
     assert_title_preface: false,
 
     enable_stash: false,
-    stash_home_root: 'toolbar_____',
-    stash_home_folder: 'Stashed Windows',
+    stash_home_root_id: 'toolbar_____',
+    stash_home_folder_title: 'Stashed Windows',
     stash_nameless_with_title: false,
     auto_name_unstash: true,
     show_popup_stash: true,
@@ -52,6 +52,8 @@ export async function init() {
     /** @type {[oldKey: string, newKey: string, valueGetter: Function][]} */
     const ENTRIES_TO_MIGRATE = [
         ['__version', 'version', dict => dict.__version], // v2.10.0
+        ['stash_home_root', 'stash_home_root_id', dict => dict.stash_home_root], // v2.12.0
+        ['stash_home_folder', 'stash_home_folder_title', dict => dict.stash_home_folder], // v2.12.0
     ];
 
     // Get all entries from local storage, plus defaults for missing settings

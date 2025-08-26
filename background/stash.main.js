@@ -34,17 +34,17 @@ export function init(settings) {
      * @param {Partial<STORED_PROPS>}
      * @returns {Promise<BNodeId>}
      */
-    async function initHomeId({ stash_home_root, stash_home_folder }) {
+    async function initHomeId({ stash_home_root_id, stash_home_folder_title }) {
         /** @type {BNodeId} */ let _homeId;
-        if (stash_home_folder) {
+        if (stash_home_folder_title) {
             // Home is a SUBFOLDER of a root folder
             const home =
-                (await getChildNodes(stash_home_root)).find(node => node.title === stash_home_folder && isFolder(node)) // Find subfolder by title
-                || await createNode({ parentId: stash_home_root, title: stash_home_folder }); // Otherwise, create subfolder with title
+                (await getChildNodes(stash_home_root_id)).find(node => node.title === stash_home_folder_title && isFolder(node)) // Find subfolder by title
+                || await createNode({ parentId: stash_home_root_id, title: stash_home_folder_title }); // Otherwise, create subfolder with title
             _homeId = home.id;
         } else {
             // Home is a root folder
-            _homeId = stash_home_root;
+            _homeId = stash_home_root_id;
         }
         return _homeId;
     }
