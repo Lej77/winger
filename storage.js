@@ -63,13 +63,9 @@ export async function init() {
     // Migrate obsolete keys to new keys
     // Adds new entries to `dict`
     /** @type {Partial<STORED_PROPS>} */ const migrationDict = {};
-    let needMigrate = false;
-    for (const [oldKey, newKey, valueGetter] of ENTRIES_TO_MIGRATE) {
-        if (oldKey in sessionDict) {
+    for (const [oldKey, newKey, valueGetter] of ENTRIES_TO_MIGRATE)
+        if (oldKey in sessionDict)
             migrationDict[newKey] = sessionDict[newKey] = valueGetter(sessionDict);
-            needMigrate = true;
-        }
-    }
 
     // Clean up storage - remove obsolete/invalid keys
     /** @type {Promise<void>[]} */ const removingKeys = [];
@@ -85,7 +81,7 @@ export async function init() {
 
     await Promise.all([
         browser.storage.session.set(sessionDict),
-        needMigrate && browser.storage.local.set(migrationDict),
+        browser.storage.local.set(migrationDict),
         ...removingKeys,
     ]);
     return sessionDict;
