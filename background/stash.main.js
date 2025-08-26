@@ -6,16 +6,12 @@ import * as Chrome from './chrome.js';
 import * as StashProp from './stash.prop.js';
 import * as Winfo from './winfo.js';
 
+import { isWindowId, isNodeId } from '../utils.js';
 import * as Name from '../name.js';
 import * as Storage from '../storage.js';
 
 /** @import { WindowId, BNodeId, Window, Tab, BNode, StashFolder, ProtoTab, ProtoBNode } from '../types.js' */
 /** @import { STORED_PROPS } from '../storage.js' */
-
-
-// Ids of windows and folders currently involved in stashing/unstashing operations
-/** @type {Set<WindowId | BNodeId>} */ export const nowStashing = new Set();
-/** @type {Set<WindowId | BNodeId>} */ export const nowUnstashing = new Set();
 
 /**
  * Awaitable stash home id; allows eventual access to stash features while still initializing.
@@ -50,6 +46,44 @@ export function init(settings) {
     }
 }
 
+class NowProcessingSet extends Set {
+
+    /**
+     * Filter out items from `objects` array whose ids are in this set, returning a sub-array.
+     * @template {Window[] | StashFolder[]} Things
+     * @param {Things} objects - EITHER an array of windows (containing {WindowId} ids) OR an array of folders (containing {BNodeId} ids).
+     * @returns {Things}
+     * @this {Set<WindowId | BNodeId>}
+     */
+    excludeFrom(objects) {
+        if (!this.size || !objects.length)
+            return objects;
+
+        // Create initial exclusion set based on type of `objects`
+        /** @type {Set<WindowId> | Set<BNodeId>} */
+        const excludeIdSet = new Set(this.values().filter( isWindowId(objects[0].id) ? isWindowId : isNodeId ));
+
+        // Remove items from `objects` that have ids in `excludeIdSet`
+        // More efficient than `objects.filter(object => !excludeIdSet.has(object.id))` because `excludeIdSet` shrinks until empty which ends the loop early
+        /** @type {Things} */ const includedObjects = [];
+        for (let i = 0, n = objects.length; i < n; i++) {
+            if (excludeIdSet.size) {
+                const object = objects[i];
+                if (!excludeIdSet.delete(object.id))
+                    includedObjects.push(object);
+            } else {
+                includedObjects.push(...objects.slice(i));
+                break;
+            }
+        }
+        return includedObjects;
+    }
+
+}
+
+// Ids of windows and folders currently involved in stashing/unstashing operations
+/** @type {NowProcessingSet & Set<WindowId | BNodeId>} */ export const nowStashing = new NowProcessingSet();
+/** @type {NowProcessingSet & Set<WindowId | BNodeId>} */ export const nowUnstashing = new NowProcessingSet();
 
 /* --- STASH WINDOW/TABS --- */
 

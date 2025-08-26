@@ -1,6 +1,6 @@
 /** @param {string} @returns {boolean} */ export const isOS = osName => navigator.userAgent.indexOf(osName) !== -1;
 
-/** @param {any} @returns {boolean} */ export const isWindowId = Number.isInteger;
+/** @param {any} @returns {boolean} */ export const isWindowId = id => Number.isInteger(id);
 /** @param {any} @returns {boolean} */ export const isNodeId = id => typeof id === 'string';
 
 /**

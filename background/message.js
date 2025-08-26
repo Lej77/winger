@@ -6,7 +6,6 @@ import * as Winfo from './winfo.js';
 
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
-import { isWindowId, isNodeId } from '../utils.js';
 
 /** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder } from '../types.js' */
 /** @import { STORED_PROPS } from '../storage.js' */
@@ -65,8 +64,7 @@ const INTERNAL = {
             Storage.getDict(['show_popup_bring', 'show_popup_send', 'set_title_preface', 'enable_stash', 'show_popup_stash', 'show_popup_stashed_items', 'compact_popup']),
             browser.extension.isAllowedIncognitoAccess(),
         ]);
-        if (Stash.Main?.nowStashing.size)
-            windows = excludeByIds(windows, Stash.Main.nowStashing.values().filter(isWindowId)); // Exclude windows currently being stashed
+        windows = Stash.Main?.nowStashing.excludeFrom(windows) ?? windows; // Exclude windows currently being stashed
         flags.allow_private = allow_private;
         const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
         winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
@@ -83,12 +81,8 @@ const INTERNAL = {
      * @see /popup/request.js#popupStashedItems
      */
     async popupStashedItems() {
-        const [enable_stash, stashHomeId] = await Promise.all([ Storage.getValue('enable_stash'), Stash.Main.homeId ]);
-        if (!enable_stash)
-            return [];
-        let folders = await (new Stash.Main.FolderList()).populate(stashHomeId);
-        if (Stash.Main.nowStashing.size)
-            folders = excludeByIds(folders, Stash.Main.nowUnstashing.values().filter(isNodeId)); // Exclude folders currently being unstashed
+        let folders = await (new Stash.Main.FolderList()).populate(await Stash.Main.homeId);
+        folders = Stash.Main.nowUnstashing.excludeFrom(folders); // Exclude folders currently being unstashed
         return folders;
     },
 
@@ -212,31 +206,4 @@ const EXTERNAL = {
         return Winfo.getAll(properties, bareWinfos);
     },
 
-}
-
-/**
- * Filter out `objects` that have the given unique `ids`, returning a new array.
- * More efficient than `ids = new Set(ids); objects.filter(o => !ids.has(o.id));`,
- * since the exclusion list shrinks until it's gone which ends the loop early.
- * @template {Window | Tab} Thing
- * @param {Thing[]} objects
- * @param {any[]} ids
- * @returns {Thing[]}
- */
-function excludeByIds(objects, ids) {
-    if (!ids.length)
-        return objects;
-    const idSet = new Set(ids);
-    const included = [];
-    for (let i = 0, n = objects.length; i < n; i++) {
-        if (idSet.size) {
-            const object = objects[i];
-            if (!idSet.delete(object.id))
-                included.push(object);
-        } else {
-            included.push(...objects.slice(i));
-            break;
-        }
-    }
-    return included;
 }
