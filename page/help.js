@@ -79,10 +79,10 @@ function updateMockPopups() {
     for (const $popup of QSA('.popup')) {
         const $status = $popup.querySelector('.popup-status');
         if (!$status)
-            return;
+            continue;
         const statusText = $status.textContent;
         if (!statusText.includes('#'))
-            return;
+            continue;
         const $tabCounts = [...QSA('.popup-tabCount:not(.nocount)', $popup)];
         const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
         const windowCount = $tabCounts.length;
