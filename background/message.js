@@ -22,10 +22,9 @@ browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, req
  */
 function onMessage(fnCollection, message) {
     /** @type {Function?} */
-    const processor = fnCollection[message.type];
-    return processor ?
-        processor(message) :
-        new Error('Missing or unrecognised message/request type');
+    const fn = fnCollection[message.type];
+    return fn ? fn(message) :
+        new Error(`Missing or unrecognised message/request type: ${message.type}`);
 }
 
 /**
@@ -42,8 +41,8 @@ const INTERNAL = {
             Action,
             Auto,
             Chrome,
+            Menu: await import('./menu.js'),
             Name,
-            SendMenu: await import('./menu.js'),
             Stash,
             StashProp: await import('./stash.prop.js'),
             Storage,
@@ -81,6 +80,7 @@ const INTERNAL = {
      * @see /popup/request.js#popupStashedItems
      */
     async popupStashedItems() {
+        // Can assume Stash module loaded
         let folders = await (new Stash.Main.FolderList()).populate(await Stash.Main.homeId);
         folders = Stash.Main.nowUnstashing.excludeFrom(folders); // Exclude folders currently being unstashed
         return folders;
@@ -93,6 +93,7 @@ const INTERNAL = {
      * @see /popup/request.js#popupStashedSizes
      */
     async popupStashedSizes({ folders }) {
+        // Can assume Stash module loaded
         const folderList = await (new Stash.Main.FolderList()).populate(folders);
         return folderList.countBookmarks();
     },

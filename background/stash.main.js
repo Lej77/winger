@@ -195,8 +195,8 @@ async function createBookmarksAtNode(tabs, node) {
     nowStashing.add(folderId);
 
     const count = tabs.length;
+    const index = isNodeFolder ? null : node.index;
     /** @type {Promise<BNode>[]} */ const creatingBookmarks = new Array(count);
-    /** @type {number?} */ const index = isNodeFolder ? null : node.index;
     for (let i = count; i--;) // Reverse iteration necessary for bookmarks to be in correct order
         creatingBookmarks[i] = createBookmark(tabs[i], folderId, index);
     const bookmarks = await Promise.all(creatingBookmarks);
@@ -322,6 +322,7 @@ async function populateWindow(window, bookmarks) {
         return;
 
     const windowId = window.id;
+    /** @type {ProtoTab[]} */
     const protoTabs = bookmarks.map(({ title, url }) => ({ windowId, url, ...StashProp.Tab.parse(title) }));
 
     await StashProp.Tab.preOpen(protoTabs, window);

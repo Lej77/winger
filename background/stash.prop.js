@@ -1,4 +1,3 @@
-
 /*
 StashProp module - Encode and decode tab/window properties into and from JSON annotations in folder/bookmark titles.
 Example JSON annotation: '{"pinned":true,"id":"abcdef123","parentId":"uvwxyz789","container":"Personal"}'
@@ -165,13 +164,13 @@ const Containers = {
     },
 
     /**
-     * Replace any container properties in protoTabs with cookieStoreId.
+     * Replace any `container` properties in protoTabs with `cookieStoreId`.
      * @param {ProtoTab[]} protoTabs
-     * @param {Window} window - For checking incognito state
+     * @param {Window} window - For checking `incognito` state
      * @modifies protoTabs
      */
     async restore(protoTabs, window) {
-        // If window is private or container feature is disabled, forget container properties
+        // If window is private or container feature is disabled, forget `container` properties
         if (window.incognito || !browser.contextualIdentities) {
             for (const protoTab of protoTabs)
                 delete protoTab.container;
@@ -188,7 +187,7 @@ const Containers = {
         if (!containerNameTabMap.size)
             return;
 
-        // Get cookieStoreIds to build a {containerName: cookieStoreIds} dict
+        // Get cookieStoreIds to build Object<containerName, cookieStoreId> dict
         // Create new containers if needed
         /** @type {Object<string, string>} */
         const containerNameIdDict = Object.fromEntries(
@@ -197,7 +196,7 @@ const Containers = {
             )).filter(Boolean)
         );
 
-        // Assign cookieStoreId to protoTabs
+        // Assign `cookieStoreId` to protoTabs
         for (const [containerName, protoTabs] of containerNameTabMap.entries()) {
             const cookieStoreId = containerNameIdDict[containerName];
             for (const protoTab of protoTabs)
@@ -331,7 +330,7 @@ const Parents = {
      * @modifies tabs
      */
     prepare(tabs) {
-        /** @type {Map<number, Tab>} */ const tabMap = new Map();
+        /** @type {Map<TabId, Tab>} */ const tabMap = new Map();
         for (const tab of tabs)
             tabMap.set(tab.id, tab);
         for (const tab of tabs) {
@@ -344,7 +343,7 @@ const Parents = {
     },
 
     /**
-     * Return shallow copy of protoTab sans id and openerTabId properties.
+     * Return shallow copy of protoTab sans `id` and `openerTabId` properties.
      * @param {ProtoTab} protoTab
      * @returns {ProtoTab}
      */
@@ -433,7 +432,7 @@ export const Tab = {
     // Stashing
 
     /**
-     * Add properties to tabs marking containers, groups, parents. To be done before creating bookmarks.
+     * Add properties to `tabs` marking containers, groups, parents. To be done before creating bookmarks.
      * @param {Tab[]} tabs
      * @modifies tabs
      */
@@ -473,7 +472,7 @@ export const Tab = {
     },
 
     /**
-     * Tasks before creating tabs.
+     * Property restoration tasks to be done BEFORE creating tabs.
      * @param {ProtoTab[]} protoTabs
      * @param {Window} window
      * @modifies protoTabs
@@ -492,7 +491,7 @@ export const Tab = {
     },
 
     /**
-     * Tasks after creating tabs.
+     * Property restoration tasks to be done AFTER creating tabs.
      * @param {Tab[]} tabs
      * @param {ProtoTab[]} protoTabs
      * @modifies tabs
