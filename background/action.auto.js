@@ -49,7 +49,7 @@ export function restoreTabRelations(tabs, referenceTabs, isMove) {
     referenceTabs.forEach(({ id, openerTabId }, index) => {
         id ??= tabs[index].id; // If no reference id (e.g. id-less protoTab), just use the corresponding tab id
         if (referenceMap.has(id))
-            throw 'restoreTabRelations: The two tab arrays contain a repeating id';
+            console.warn(`restoreTabRelations: Duplicate tab id ${id}`);
         // Maps have no indexes like arrays, so we explicitly store them, which will tell us where parent tabs are
         referenceMap.set(id, { index, openerTabId });
     });

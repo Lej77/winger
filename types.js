@@ -29,6 +29,8 @@
  * @property {number} index
  * @property {TabId} [openerTabId]
  * @property {boolean} pinned
+ * @property {number} [stashId] - Added by `(stash.prop.js).Parents.prepare()`, used by `(stash.prop.js).Props.TAB.writer.id/parentId()`
+ * @property {number} [stashParentId] - Added by `(stash.prop.js).Parents.prepare()`, used by `(stash.prop.js).Props.TAB.writer.id/parentId()`
  * @property {string} title
  * @property {string} url
  * @property {WindowId} windowId

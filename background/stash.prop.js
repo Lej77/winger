@@ -22,12 +22,6 @@ import { GroupMap } from '../utils.js';
 
 /** @import { TabId, GroupId, BNodeId, Window, Tab, Group, ProtoWindow, ProtoTab, ProtoGroup } from '../types.js' */
 
-/**
- * @param {BNodeId} folderId
- * @param {TabId} tabId
- * @returns {string}
- */
-const makeStashId = (folderId, tabId) => folderId.slice(0, 5) + tabId;
 
 /** Write and read window/tab properties. Only truthy properties are written. */
 const Props = {
@@ -67,8 +61,8 @@ const Props = {
                 return info;
             },
             // After Parents.prepare():
-            id: ({ id, isParent }, folderId) => isParent && makeStashId(folderId, id),
-            parentId: ({ openerTabId }, folderId) => openerTabId && makeStashId(folderId, openerTabId), // 'parentId' alias of 'openerTabId'
+            id: ({ stashId }) => stashId,
+            parentId: ({ stashParentId }) => stashParentId, // 'parentId' alias of 'openerTabId'
         },
         /** @type {Object<string, (thing: ProtoTab) => any>} */
         reader: {
@@ -324,8 +318,8 @@ const Groups = {
 const Parents = {
 
     /**
-     * Mark tabs that are parents of other tabs with the isParent=true property.
-     * Remove references to any parents that are not in the list of tabs.
+     * Give tabs that are parents of other tabs a `stashId` property, and those child tabs a `stashParentId` property with the same value.
+     * Remove references to any parents that are not in the array of tabs.
      * @param {Tab[]} tabs
      * @modifies tabs
      */
@@ -333,12 +327,23 @@ const Parents = {
         /** @type {Map<TabId, Tab>} */ const tabMap = new Map();
         for (const tab of tabs)
             tabMap.set(tab.id, tab);
+
+        const stashIdFragment = Math.random().toString().slice(2, 10);
+
         for (const tab of tabs) {
             const parentTab = tabMap.get(tab.openerTabId);
-            if (parentTab && parentTab.id !== tab.id)
-                parentTab.isParent = true;
-            else
-                delete tab.openerTabId;
+            // No valid parentTab
+            if (!parentTab || parentTab.id === tab.id)
+                continue;
+            // ParentTab already has `stashId`
+            if (parentTab.stashId) {
+                tab.stashParentId = parentTab.stashId;
+                continue;
+            }
+            // Create `stashId` for parentTab
+            const stashId = Number(`${stashIdFragment}${parentTab.id}`);
+            parentTab.stashId = stashId;
+            tab.stashParentId = stashId;
         }
     },
 
