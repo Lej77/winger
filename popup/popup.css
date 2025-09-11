@@ -70,6 +70,10 @@ window-row {
     > * {
         flex: 0 0 auto;
     }
+
+    body.compact & {
+        scroll-margin: calc(var(--popup-row-height) * 4);
+    }
 }
 
 .tabCount {

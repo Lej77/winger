@@ -7,6 +7,7 @@ import {
     isField,
     isInToolbar,
     isNameField,
+    FLAGS,
 } from './common.js';
 import { isActive as isEditMode } from './editmode.js';
 import { $shownRows } from './filter.js';
@@ -21,7 +22,6 @@ import { $shownRows } from './filter.js';
  * @returns {HTMLElement}
  */
 
-const SCROLL_THRESHOLD = 5; // Scrolling is suppressed unless focused row is this number of rows from the start or end
 const HORIZONTAL_KEYS = ['ArrowRight', 'ArrowLeft'];
 const VERTICAL_KEYS = ['ArrowDown', 'ArrowUp'];
 
@@ -72,13 +72,21 @@ export function handleKeyUp(event) {
 }
 
 /**
+ * Scrolling is suppressed unless focused row is this number of rows from the start or end.
+ * @type {[normal: number, compact: number] | number}
+ */
+let scrollThreshold = [5, 8];
+
+/**
  * Prevent scrolling if focus is on first/last few rows, to control the default scoll-ahead.
  * @param {HTMLElement} $el
  * @param {KeyboardEvent} event
  */
 function restrictScroll($el, event) {
+    if (Array.isArray(scrollThreshold))
+        scrollThreshold = scrollThreshold[+FLAGS.compact_popup];
     const index = $shownRows.indexOf(row($el));
-    if (index < SCROLL_THRESHOLD || ($shownRows.length - index) <= SCROLL_THRESHOLD)
+    if (index < scrollThreshold || ($shownRows.length - index) <= scrollThreshold)
         event.preventDefault(); // Suppress scrolling
 }
 
