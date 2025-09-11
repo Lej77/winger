@@ -12,8 +12,10 @@ import * as Request from './request.js';
 /** @import { NameField$, WindowRow$ } from './common.js' */
 /** @import { Winfo, BNode, StashFolder } from '../types.js' */
 
-const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash']);
-/** @type {Object<string, WindowRow$>} */ const Template = {};
+const CELL_SELECTORS = new Set(['.send', '.bring', '.icon', '.name', '.tabCount', '.stash']);
+
+/** Base window/folder rows to clone. @type {Object<string, WindowRow$>} */
+const Template = {};
 
 /**
  * @param {Winfo} fgWinfo
@@ -22,7 +24,7 @@ const CELL_SELECTORS = new Set(['.send', '.bring', '.name', '.tabCount', '.stash
 export function addWindows(fgWinfo, bgWinfos) {
     WindowRow.init();
     const currentIncognito = fgWinfo.incognito;
-    /** @type {HTMLLIElement} */ const $minimizedHeading = document.getElementById('minimizedHeading');
+    /** @type {HTMLElement} */ const $headingMinimized = $otherWindowsList.querySelector('window-heading.minimized');
     /** @type {WindowRow$[]} */ const $rows = [];
     /** @type {NameField$[]} */const $_names = [];
     const $rowsFragment = document.createDocumentFragment();
@@ -40,13 +42,13 @@ export function addWindows(fgWinfo, bgWinfos) {
     WindowRow.hydrateCurrent($currentWindowRow, fgWinfo);
 
     // Position minimized-heading
-    /** @type {WindowRow$?} */ const $firstMinimizedRow = $otherWindowsList.querySelector('.minimized');
+    /** @type {WindowRow$?} */ const $firstMinimizedRow = $otherWindowsList.querySelector('window-row.minimized');
     $firstMinimizedRow ?
-        $firstMinimizedRow.insertAdjacentElement('beforebegin', $minimizedHeading) :
-        $otherWindowsList.appendChild($minimizedHeading);
+        $firstMinimizedRow.insertAdjacentElement('beforebegin', $headingMinimized) :
+        $otherWindowsList.appendChild($headingMinimized);
 
     // Hydrate globals
-    $otherWindowRows.$minimizedHeading = $minimizedHeading;
+    $otherWindowRows.$headingMinimized = $headingMinimized;
     $otherWindowRows.$withHeadings = [...$otherWindowsList.children];
     $otherWindowRows.push(...$rows);
     Filter.$shownRows.push(...$rows);
@@ -74,7 +76,9 @@ const WindowRow = {
         }
         if (buttonCount)
             document.documentElement.style.setProperty('--popup-row-button-count', buttonCount);
+
         Template.$window = $currentWindowRow.cloneNode(true);
+        Template.$window.removeAttribute('id');
     },
 
     /**
@@ -85,7 +89,7 @@ const WindowRow = {
     create(winfo, currentIncognito) {
         /** @type {WindowRow$} */ const $row = Template.$window.cloneNode(true);
         WindowRow._hydrate($row, winfo);
-        // Disable send/bring/stash buttons if popup/panel-type window
+        // Disable action buttons if popup/panel-type window
         if (winfo.type !== 'normal') {
             $row.querySelectorAll('button').forEach(disableElement);
             $row.classList.add('tabless');
@@ -113,10 +117,12 @@ const WindowRow = {
      * @param {Winfo} winfo
      */
     _hydrate($row, { givenName, id, incognito, minimized, tabCount, title, titleSansName }) {
-        referenceHydrate($row);
+        hydrateCellReferences($row);
         title = titleSansName || title || '';
         // Add data
         $row._id = id;
+        $row.setAttribute('aria-labelledby', id);
+        $row.$name.id = id; // For aria-labelledby
         $row.$name._id = id;
         $row.$name.value = givenName;
         $row.$name.placeholder = title;
@@ -125,7 +131,6 @@ const WindowRow = {
         $row.classList.toggle('minimized', minimized);
         $row.classList.toggle('private', incognito);
     },
-
 };
 
 /**
@@ -133,10 +138,10 @@ const WindowRow = {
  */
 export function addFolders(folders) {
     // Create stashed-heading
-    /** @type {HTMLLIElement} */ const $stashedHeading = $otherWindowRows.$minimizedHeading.cloneNode(true);
-    $stashedHeading.id = 'stashedHeading';
-    $stashedHeading.dataset.heading = 'Stashed';
-    $otherWindowsList.appendChild($stashedHeading);
+    /** @type {HTMLElement} */ const $headingStashed = $otherWindowRows.$headingMinimized.cloneNode(true);
+    $headingStashed.classList.replace('minimized', 'stashed');
+    $headingStashed.dataset.title = 'Stashed';
+    $otherWindowsList.appendChild($headingStashed);
 
     // Create stashed-rows
     FolderRow.init();
@@ -153,7 +158,7 @@ export function addFolders(folders) {
     $otherWindowsList.appendChild($rowsFragment);
 
     // Hydrate globals
-    $otherWindowRows.$stashedHeading = $stashedHeading;
+    $otherWindowRows.$headingStashed = $headingStashed;
     $otherWindowRows.$stashed = $rows;
     $otherWindowRows.$stashed._startIndex = $otherWindowRows.length;
     $names.$stashed = $_names;
@@ -170,19 +175,19 @@ export function addFolders(folders) {
  * @param {boolean} [config.scrollIntoView]
  */
 export function toggleViewFolders({ scrollIntoView } = {}) {
-    // Stashed-rows visibility governed by CSS (`body.viewstash li.stashed`)
+    // Stashed-rows visibility governed by popup.css
     if ($body.classList.toggle('viewstash')) {
         const $rows = $otherWindowRows.$stashed;
         $otherWindowRows.push(...$rows);
-        $otherWindowRows.$withHeadings.push($otherWindowRows.$stashedHeading, ...$rows);
+        $otherWindowRows.$withHeadings.push($otherWindowRows.$headingStashed, ...$rows);
         Filter.$shownRows.push(...$rows);
         $names.push(...$names.$stashed);
         if (scrollIntoView)
-            $otherWindowRows.$stashedHeading.previousElementSibling?.scrollIntoView({ behavior: 'smooth' });
+            $otherWindowRows.$headingStashed.previousElementSibling?.scrollIntoView({ behavior: 'smooth' });
     } else {
         const rowIndex = $otherWindowRows.$stashed._startIndex;
         $otherWindowRows.splice(rowIndex);
-        $otherWindowRows.$withHeadings.splice(rowIndex + 1); // +1 to account for `$minimizedHeading`
+        $otherWindowRows.$withHeadings.splice(rowIndex + 1); // +1 to account for `$headingMinimized`
         Filter.$shownRows.splice(rowIndex);
         $names.splice($names.$stashed._startIndex);
     }
@@ -206,8 +211,10 @@ const FolderRow = {
      */
     create({ givenName, id, protoWindow }) {
         /** @type {WindowRow$} */ const $row = Template.$folder.cloneNode(true);
-        referenceHydrate($row);
+        hydrateCellReferences($row);
         $row._id = id;
+        $row.setAttribute('aria-labelledby', id);
+        $row.$name.id = id; // For aria-labelledby
         $row.$name._id = id;
         $row.$name.value = givenName;
         $row.classList.add('stashed');
@@ -221,7 +228,7 @@ const FolderRow = {
  * Add references to row's cells, and in each cell a reference back to the row.
  * @param {WindowRow$} $row
  */
-function referenceHydrate($row) {
+function hydrateCellReferences($row) {
     for (const selector of CELL_SELECTORS) {
         /** @type {HTMLElement & { $row: WindowRow$ }} */
         const $cell = $row.querySelector(selector);

@@ -8,26 +8,28 @@
     <link rel="stylesheet" href="popup.css">
   </head>
   <body class="compact">
-    <!-- initial state of this row (tabindexes, etc) is as an other-row -->
+
+    <!-- initial state of this row (tabindexes, etc) is as an "other window" row -->
     <!-- `readonly` easier to control focusability than `disabled` -->
-    <ul id="currentWindow">
-      <li tabindex="0" data-action="switch">
-        <button type="button" class="tabAction send" data-action="send" title="Send" hidden></button>
-        <button type="button" class="tabAction bring" data-action="bring" title="Bring" hidden></button>
-        <div class="icon"></div>
-        <input class="name" tabindex="-1" readonly>
-        <div class="tabCount"></div>
-        <button type="button" class="windowAction stash" data-action="stash" title="Stash" hidden></button>
-      </li>
-    </ul>
-    <div id="omniboxWrapper">
+    <window-row id="currentWindow" tabindex="0" data-action="switch" aria-labelledby="">
+      <button type="button" class="tabAction send" data-action="send" title="Send" hidden></button>
+      <button type="button" class="tabAction bring" data-action="bring" title="Bring" hidden></button>
+      <div class="icon"></div>
+      <input id="" class="name" tabindex="-1" readonly>
+      <div class="tabCount"></div>
+      <button type="button" class="windowAction stash" data-action="stash" title="Stash" hidden></button>
+    </window-row>
+
+    <omnibox-row>
       <input id="omnibox" placeholder="Find windows" autofocus>
-    </div>
-    <ul id="otherWindows" tabindex="-1">
-      <li class="heading" data-heading="Minimized" id="minimizedHeading"><hr></li>
-    </ul>
+    </omnibox-row>
+
+    <window-list tabindex="-1">
+      <window-heading class="minimized" data-title="Minimized"><hr></window-heading>
+    </window-list>
+
     <footer>
-      <div id="status">Loading...</div>
+      <status-bar>Loading...</status-bar>
       <button type="button" id="help" title="Help"></button>
     </footer>
 
