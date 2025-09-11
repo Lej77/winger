@@ -77,9 +77,9 @@ const INTERNAL = {
 
     /**
      * @returns {Promise<StashFolder[]>}
-     * @see /popup/request.js#popupStashedItems
+     * @see /popup/request.js#popupStashItems
      */
-    async popupStashedItems() {
+    async popupStashItems() {
         // Can assume Stash module loaded
         let folders = await (new Stash.Main.FolderList()).populate(await Stash.Main.homeId);
         folders = Stash.Main.nowUnstashing.excludeFrom(folders); // Exclude folders currently being unstashed
@@ -90,9 +90,9 @@ const INTERNAL = {
      * @param {Object} request
      * @param {BNode[]} request.folders
      * @returns {Promise<StashFolder[]>}
-     * @see /popup/request.js#popupStashedSizes
+     * @see /popup/request.js#popupStashSizes
      */
-    async popupStashedSizes({ folders }) {
+    async popupStashSizes({ folders }) {
         // Can assume Stash module loaded
         const folderList = await (new Stash.Main.FolderList()).populate(folders);
         return folderList.countBookmarks();

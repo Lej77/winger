@@ -153,7 +153,7 @@ export function addFolders(folders) {
         $rows.push($row);
         $_names.push($row.$name);
         $rowsFragment.appendChild($row);
-        folder = { id: folder.id }; // Strip down folder objects for `Request.popupStashedSizes()`
+        folder = { id: folder.id }; // Strip down folder objects for `Request.popupStashSizes()`
     }
     $otherWindowsList.appendChild($rowsFragment);
 
@@ -164,10 +164,8 @@ export function addFolders(folders) {
     $names.$stashed = $_names;
     $names.$stashed._startIndex = $names.length;
 
-    // Hydrate tab counts
-    Request.popupStashedSizes(folders).then(folders =>
-        folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount)
-    );
+    // Hydrate bookmark counts
+    Request.popupStashSizes(folders).then(folders => FolderRow.hydrateCounts($rows, folders));
 }
 
 /**
@@ -222,6 +220,14 @@ const FolderRow = {
         return $row;
     },
 
+    /**
+     *
+     * @param {WindowRow$[]} $rows
+     * @param {StashFolder[]} folders
+     */
+    hydrateCounts($rows, folders) {
+        folders.forEach((folder, i) => $rows[i].$tabCount.textContent = folder.bookmarkCount);
+    },
 };
 
 /**

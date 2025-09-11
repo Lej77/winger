@@ -5,20 +5,20 @@ import * as Modifier from '../modifier.js';
 import { getValue } from '../storage.js';
 
 /** @import { WindowRow$ } from './common.js' */
-/** @import { WindowId, BNode, PopupInitMessage, ActionRequest } from '../types.js' */
+/** @import { WindowId, BNode, StashFolder, PopupInitMessage, ActionRequest } from '../types.js' */
 
 /** @returns {Promise<void>} */ export const showWarningBadge = () => browser.runtime.sendMessage({ type: 'warn' });
 /** @returns {Promise<void>} */ export const help = () => browser.runtime.sendMessage({ type: 'help' });
 /** @returns {Promise<void>} */ export const debug = () => browser.runtime.sendMessage({ type: 'debug' });
 
 /** @returns {Promise<PopupInitMessage>} */ export const popup = () => browser.runtime.sendMessage({ type: 'popup' });
-/** @returns {Promise<BNode[]>} */ export const popupStashedItems = () => browser.runtime.sendMessage({ type: 'popupStashedItems' });
+/** @returns {Promise<BNode[]>} */ export const popupStashItems = () => browser.runtime.sendMessage({ type: 'popupStashItems' });
 
 /**
  * @param {BNode[]} folders
- * @returns {Promise<BNode[]>}
+ * @returns {Promise<StashFolder[]>}
  */
-export const popupStashedSizes = folders => browser.runtime.sendMessage({ type: 'popupStashedSizes', folders });
+export const popupStashSizes = folders => browser.runtime.sendMessage({ type: 'popupStashSizes', folders });
 
 /**
  * @param {WindowId} windowId
