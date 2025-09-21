@@ -1,5 +1,5 @@
 import './background.init.js';
-import './message.js';
+import './background.message.js';
 import * as Action from './action.js';
 import * as Auto from './action.auto.js';
 import * as Chrome from './chrome.js';
@@ -77,6 +77,7 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
+    /** @type {[boolean, boolean, WindowId?]} */
     const [discard_minimized_window, set_title_preface, defocusedWindowId] =
         await Storage.getValues(['discard_minimized_window', 'set_title_preface', '_focusedWindowId']);
     /** @type {boolean} */

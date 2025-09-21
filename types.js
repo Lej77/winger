@@ -107,7 +107,7 @@
  * @property {Partial<STORED_PROPS>} flags
  */
 /**
- * Request object sent as message from `(popup/request.js).action()`, to `(background/message.js).INTERNAL.action()`,
+ * Request object sent as message from `(popup/request.js).action()`, to `(background/background.message.js).INTERNAL.action()`,
  * and then `(background/action.js).execute()`, which passes it to smaller functions.
  * @typedef ActionRequest
  * @property {string} action
