@@ -114,7 +114,9 @@ export async function handleInput($name) {
 }
 
 /**
- * @param {KeyboardEvent} event
+ * @param {Object} event
+ * @param {NameField$} event.target
+ * @param {string} event.key
  * @returns {boolean}
  */
 export function handleKeyUp({ target, key }) {
@@ -125,6 +127,13 @@ export function handleKeyUp({ target, key }) {
         trySaveNameAndHandleErrors(target);
         done();
     }
+    else
+    // Press Right key in an empty name field to fill it with the active tab title
+    if (key === 'ArrowRight' && !target.value) {
+        target.value = target.placeholder;
+        target.select();
+    }
+
     return true;
 }
 
