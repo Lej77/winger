@@ -270,8 +270,7 @@ async function onFieldChanged({ target: $field }) {
             return;
 
         case 'discard_minimized_window':
-            if (!$field.checked)
-                browser.runtime.sendMessage({ type: 'discardMinimized', enabled: false });
+            browser.runtime.sendMessage({ type: 'discardMinimized', enabled: $field.checked });
             return;
         case 'discard_minimized_window_delay_mins':
             if ($form.discard_minimized_window.checked)
