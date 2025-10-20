@@ -1,11 +1,13 @@
-// Module loaded only if `enable_stash=true`
+import { getNode, isRootId, nowStashing, nowUnstashing } from './stash.core.js';
+import * as stashMain from './stash.main.js';
+import * as StashProp from './stash.prop.js';
 
 import { getSelectedTabs } from './action.js';
-import * as StashMain from './stash.main.js';
 
 import { STASHCOPY } from '../modifier.js';
+import * as Storage from '../storage.js';
 
-/** @import { BNodeId } from '../types.js' */
+/** @import { WindowId, BNodeId } from '../types.js' */
 
 const contexts = ['bookmark']; // Menu only appears if bookmarks permission granted
 const parentId = 'bookmark';
@@ -30,10 +32,7 @@ export function init() {
 export async function handleShow({ bookmarkId }) {
     if (!bookmarkId)
         return false;
-    const [canStash, canUnstash] = await Promise.all([
-        StashMain.canStashHere(bookmarkId),
-        StashMain.canUnstashThis(bookmarkId),
-    ]);
+    const [canStash, canUnstash] = await Promise.all([ canStashHere(bookmarkId), canUnstashThis(bookmarkId) ]);
     if (canStash) {
         browser.menus.update('stash', { enabled: true });
         // If multiple tabs selected, indicate tab count in title
@@ -73,11 +72,51 @@ export async function handleClick({ bookmarkId, menuItemId, modifiers }) {
     const remove = !modifiers.includes(STASHCOPY);
     switch (menuItemId) {
         case 'stash':
-            StashMain.stashSelectedTabs(bookmarkId, remove);
+            stashMain.stashSelectedTabs(bookmarkId, remove);
             break;
         case 'unstash':
-            StashMain.unstashNode(bookmarkId, remove);
+            stashMain.unstashNode(bookmarkId, remove);
             break;
     }
     return true; // Is handled as long as target is bookmark
+}
+
+/**
+ * Can tabs in given or current window be stashed at/into this node?
+ * @param {BNodeId} nodeId
+ * @param {WindowId?} [windowId]
+ * @returns {Promise<boolean>}
+ */
+async function canStashHere(nodeId, windowId = null) {
+    /** @type {Set<WindowId | BNodeId>} */
+    const nowProcessing = nowStashing.union(nowUnstashing);
+    return !(
+        nowProcessing.has(nodeId) || // Folder is being processed
+        nowProcessing.has(windowId || await Storage.getValue('_focusedWindowId')) || // Window is being processed
+        nowProcessing.has((await getNode(nodeId)).parentId) // Parent folder is being processed
+    );
+}
+/**
+ * Can given node be unstashed?
+ * @param {BNodeId} nodeId
+ * @returns {Promise<boolean>}
+ */
+
+async function canUnstashThis(nodeId) {
+    /** @type {Set<WindowId | BNodeId>} */
+    const nowProcessing = nowStashing.union(nowUnstashing);
+    if (isRootId(nodeId) || nowProcessing.has(nodeId))
+        return false; // Disallow root folders and folders being processed
+    const node = await getNode(nodeId);
+    switch (node.type) {
+        case 'separator':
+            return false; // Disallow separators
+        case 'bookmark':
+            return !nowProcessing.has(node.parentId); // Allow bookmarks, unless they are inside a folder being processed
+    }
+    // Is folder
+    const [, protoWindow] = StashProp.Window.parse(node.title);
+    if (protoWindow?.incognito && !await browser.extension.isAllowedIncognitoAccess())
+        return false; // Disallow private-window folders without private-window access
+    return true;
 }

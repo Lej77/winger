@@ -44,6 +44,7 @@ const INTERNAL = {
             Menu: await import('./menu.js'),
             Name,
             Stash,
+            StashCore: await import('./stash.core.js'),
             Storage,
             Winfo,
         };
