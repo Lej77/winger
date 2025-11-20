@@ -122,9 +122,18 @@
 
       <fieldset>
         <legend>Keyboard shortcuts</legend>
-        <template id="shortcut">
-          <p><span class="shortcut-description"></span>: <button class="shortcut-key"></button> <span class="shortcut-default-text muted" hidden>(default: <span class="shortcut-default"></span>)</span></p>
-        </template>
+        <table>
+          <template id="shortcut">
+            <tr>
+              <td class="shortcut-description"></td>
+              <td class="indent">
+                <button class="shortcut-key"></button>
+                <span class="shortcut-default-text muted" hidden>(default <span class="shortcut-default"></span>)</span>
+              </td>
+            </tr>
+          </template>
+
+        </table>
         <small>Learn more about the <a class="help" href="#switch-shortcuts">switch shortcuts</a></small>
       </fieldset>
 
