@@ -13,10 +13,10 @@ const TitlePreface = {
     async set(nameMap) {
         if (!await Storage.getValue('set_title_preface'))
             return;
-        const [prefix, postfix] = await Storage.getValues(['title_preface_prefix', 'title_preface_postfix']);
+        const { title_preface_prefix, title_preface_postfix } = await Storage.getDict(['title_preface_prefix', 'title_preface_postfix']);
         for (const [windowId, name] of nameMap) {
             const titlePreface = name ?
-                (prefix + name + postfix) : '';
+                (title_preface_prefix + name + title_preface_postfix) : '';
             browser.windows.update(windowId, { titlePreface });
         }
     },

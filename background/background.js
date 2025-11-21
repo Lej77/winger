@@ -77,10 +77,8 @@ async function onWindowFocusChanged(windowId) {
     if (windowId <= 0)
         return;
 
-    /** @type {[boolean, boolean, WindowId?]} */
-    const [discard_minimized_window, set_title_preface, defocusedWindowId] =
-        await Storage.getValues(['discard_minimized_window', 'set_title_preface', '_focusedWindowId']);
-    /** @type {boolean} */
+    const { discard_minimized_window, set_title_preface, _focusedWindowId: defocusedWindowId } =
+        await Storage.getDict(['discard_minimized_window', 'set_title_preface', '_focusedWindowId']);
     const isDefocusedMinimized = (await browser.windows.get(defocusedWindowId).catch(() => null))?.state === 'minimized';
 
     // Reset `Auto.switchList` if a window was minimized or un-minimized

@@ -23,8 +23,8 @@ export async function clear() {
  * @returns {Promise<(text: string) => string>}
  */
 async function createTextTransformer() {
-    /** @type {[boolean, string, boolean]} */
-    const [badge_show_emoji_first, badge_regex, badge_regex_gflag] = await Storage.getValues(['badge_show_emoji_first', 'badge_regex', 'badge_regex_gflag']);
+    const { badge_show_emoji_first, badge_regex, badge_regex_gflag }
+        = await Storage.getDict(['badge_show_emoji_first', 'badge_regex', 'badge_regex_gflag']);
     const regexObj = !!badge_regex && new RegExp(badge_regex, badge_regex_gflag ? 'g' : undefined);
 
     if (badge_show_emoji_first)

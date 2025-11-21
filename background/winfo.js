@@ -65,11 +65,11 @@ export async function getAll(wantedProps, windows = null) {
     wantedProps.add('id');
 
     const wantTitleSansName = wantedProps.has('titleSansName');
-    /** @type {[string, string]?} */ let nameAffixes;
-
-    [windows, nameAffixes] = await Promise.all([
+    /** @type {Object<string, string>?} */
+    let nameAffixDict;
+    [windows, nameAffixDict] = await Promise.all([
         windows ?? browser.windows.getAll({ populate: wantedProps.has('tabs') || wantedProps.has('tabCount') }),
-        wantTitleSansName && Storage.getValues(['title_preface_prefix', 'title_preface_postfix']),
+        wantTitleSansName && Storage.getDict(['title_preface_prefix', 'title_preface_postfix']),
     ]);
 
     if (wantTitleSansName)
@@ -93,7 +93,7 @@ export async function getAll(wantedProps, windows = null) {
         propsToLoad,
         propsToDerive,
         propsToCopy: wantedProps,
-        nameAffixLength: nameAffixes.join?.('').length ?? 0,
+        nameAffixLength: Object.values(nameAffixDict).join?.('').length ?? 0,
     };
 
     return Promise.all( windows.map(window => getOne(window, commonInfo)) );

@@ -1,6 +1,6 @@
 // The storage system:
 // `init()` loads all data from local storage, filling any absent values with default values, and places the data in session storage.
-// The data can be read from session storage using `getDict()`, `getValue()` and `getValues()`.
+// The data can be read from session storage using `getDict()` and `getValue()`.
 // The data can be updated using `set()` which writes to both session and local storage.
 // "_"-prefixed data keys are considered temporary (session-only) and are never saved to local storage.
 
@@ -20,7 +20,7 @@ export const STORED_PROPS = {
     badge_show_emoji_first: false,
     badge_regex: '',
     badge_regex_gflag: false,
-    set_title_preface: undefined,
+    set_title_preface: /** @type {boolean | undefined} */ (undefined),
     title_preface_prefix: '',
     title_preface_postfix: ' - ',
     assert_title_preface: false,
@@ -134,17 +134,6 @@ export function getDict(keys) {
 export async function getValue(key) {
     const dict = await browser.storage.session.get({ [key]: STORED_PROPS[key] });
     return dict[key];
-}
-
-/**
- * Given an array of keys, return the respective stored values from session storage.
- * @template {keyof STORED_PROPS} Key
- * @param {Key[]} keys
- * @returns {Promise<(typeof STORED_PROPS[Key])[]>}
- */
-export async function getValues(keys) {
-    const dict = await browser.storage.session.get(getDefaultsDict(keys));
-    return Object.values(dict);
 }
 
 /**

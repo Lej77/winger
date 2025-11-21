@@ -105,9 +105,9 @@ async function bringTabs(request) {
  * @returns {Promise<Tab[]>}
  */
 async function sendTabs(request) {
-    const [tabs, [keep_moved_tabs_selected, discard_minimized_window]] = await Promise.all([
+    const [tabs, { keep_moved_tabs_selected, discard_minimized_window }] = await Promise.all([
         request.tabs ?? getSelectedTabs(), // If tabs not given in request, get selected tabs
-        Storage.getValues(['keep_moved_tabs_selected', 'discard_minimized_window']),
+        Storage.getDict(['keep_moved_tabs_selected', 'discard_minimized_window']),
     ]);
     request.tabs ??= tabs;
     request.keep_moved_tabs_selected = keep_moved_tabs_selected;
