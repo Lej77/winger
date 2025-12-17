@@ -76,7 +76,7 @@ Promise.all([
     // Check for version update
     const version = browser.runtime.getManifest().version;
     if (version !== info.version) {
-        if (info.show_help_upon_update) {
+        if (info.open_help_on_update) {
             // Open help page when there's a major or minor (not patch) version change
             const sansPatch = version => version.split('.', 2).join('.');
             if (sansPatch(version) !== sansPatch(info.version))
