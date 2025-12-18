@@ -5,7 +5,7 @@
 // "_"-prefixed data keys are considered temporary (session-only) and are never saved to local storage.
 
 /**
- * Default values of all possible stored properties.
+ * Default values of all possible stored properties, settings and non-settings.
  */
 export const STORED_PROPS = {
     show_popup_bring_btn: true,
@@ -37,9 +37,9 @@ export const STORED_PROPS = {
     compact_popup: false,
     open_help_on_update: true,
 
-    // Non-settings. Temporary keys have a "_" prefix.
-    // These properties are to be correctly populated at init; the "default values" are only for type inference.
-    version: '',
+    // Non-settings, must be "_" prefixed
+    // These properties are to be correctly populated at init; the "default values" are only for type inference
+    _version: '',
     _focusedWindowId: 0,
 };
 
@@ -51,7 +51,7 @@ export const STORED_PROPS = {
 export async function init() {
     /** @type {[oldKey: string, newKey: string, valueGetter: Function][]} */
     const ENTRIES_TO_MIGRATE = [
-        ['__version', 'version', dict => dict.__version], // v2.10.0
+        ['__version', '_version', dict => dict.__version], // v2.12.0
         ['stash_home_root', 'stash_home_root_id', dict => dict.stash_home_root], // v2.12.0
         ['stash_home_folder', 'stash_home_folder_title', dict => dict.stash_home_folder], // v2.12.0
         ['show_popup_bring', 'show_popup_bring_btn', dict => dict.show_popup_bring], // v2.12.0
@@ -65,54 +65,37 @@ export async function init() {
 
     // Migrate obsolete keys to new keys
     // Adds new entries to `dict`
-    /** @type {Partial<STORED_PROPS>} */ const migrationDict = {};
-    for (const [oldKey, newKey, valueGetter] of ENTRIES_TO_MIGRATE)
-        if (oldKey in sessionDict)
-            migrationDict[newKey] = sessionDict[newKey] = valueGetter(sessionDict);
+    /** @type {Partial<STORED_PROPS>} */
+    const migrationDict = {};
+    for (const [oldKey, newKey, valueGetter] of ENTRIES_TO_MIGRATE) if (oldKey in sessionDict)
+        migrationDict[newKey] = sessionDict[newKey] = valueGetter(sessionDict);
 
-    // Clean up storage - remove obsolete/invalid keys
-    /** @type {Promise<void>[]} */ const removingKeys = [];
-    for (const key in sessionDict) {
-        if (key in STORED_PROPS) { // Is valid
-            if (key.startsWith('_')) // Is temporary
-                removingKeys.push(browser.storage.local.remove(key));
-            continue;
-        }
-        delete sessionDict[key];
-        removingKeys.push(browser.storage.local.remove(key));
-    }
-
-    await Promise.all([
+    /** @type {Promise<void>[]} */
+    const promises = [
         browser.storage.session.set(sessionDict),
         browser.storage.local.set(migrationDict),
-        ...removingKeys,
-    ]);
+    ];
+    // Clean up storage - remove obsolete/invalid keys
+    for (const key in sessionDict) if (!(key in STORED_PROPS)) {
+        delete sessionDict[key];
+        promises.push(browser.storage.local.remove(key));
+    }
+    await Promise.all(promises);
+
     return sessionDict;
 }
 
 /**
- * Save `dict` in session and local (except temproary properties) storage.
+ * Save `dict` in session and local storage.
  * Return false if anything fails to save, else return true.
  * @param {Partial<STORED_PROPS>} dict
  * @returns {Promise<boolean>}
  */
 export async function set(dict) {
     return (await Promise.all([
-        browser.storage.local.set(removeTemp(dict)).then(() => true, () => false),
+        browser.storage.local.set(dict).then(() => true, () => false),
         browser.storage.session.set(dict).then(() => true, () => false),
     ])).every(Boolean);
-}
-
-/**
- * @param {Partial<STORED_PROPS>} dict
- * @returns {Partial<STORED_PROPS>}
- */
-function removeTemp(dict) {
-    const newDict = {};
-    for (const key in dict)
-        if (!key.startsWith('_'))
-            newDict[key] = dict[key];
-    return newDict;
 }
 
 /**
@@ -149,4 +132,44 @@ function getDefaultsDict(keys) {
     for (const key of keys)
         dict[key] = STORED_PROPS[key];
     return dict;
+}
+
+/**
+ * @typedef PopupConfig
+ * @property {boolean} allow_private
+ * @property {boolean} compact_popup
+ * @property {boolean} set_title_preface
+ * @property {boolean} show_popup_bring_btn
+ * @property {boolean} show_popup_send_btn
+ * @property {boolean} [enable_stash]
+ * @property {boolean} [show_popup_stash_btn]
+ * @property {boolean} [show_popup_stashed_items]
+ */
+/**
+ * Get dict of settings used by the popup.
+ * @returns {Promise<PopupConfig>}
+ */
+export async function getPopupConfig() {
+    const POPUP_SETTING_KEYS = [
+        'compact_popup',
+        'set_title_preface',
+        'show_popup_bring_btn',
+        'show_popup_send_btn',
+        'enable_stash',
+        'show_popup_stash_btn',
+        'show_popup_stashed_items',
+    ];
+    /** @type {[PopupConfig, boolean]} */
+    const [config, allow_private] = await Promise.all([
+        getDict(POPUP_SETTING_KEYS),
+        browser.extension.isAllowedIncognitoAccess(),
+    ]);
+    config.allow_private = allow_private;
+
+    // If stashing not enabled, remove stash-related settings from config, making them all falsey
+    if (!config.enable_stash)
+        for (const key in config) if (key.includes('stash'))
+            delete config[key];
+
+    return config;
 }

@@ -1,5 +1,3 @@
-/** @import { STORED_PROPS } from './storage.js' */
-
 /** @typedef {number} WindowId */
 /** @typedef {number} TabId */
 /** @typedef {number} GroupId */
@@ -104,7 +102,7 @@
  * @typedef PopupInitMessage
  * @property {Winfo} fgWinfo
  * @property {Winfo[]} bgWinfos
- * @property {Partial<STORED_PROPS>} flags
+ * @property {import('./storage').PopupConfig} config
  */
 /**
  * Request object sent as message from `(popup/request.js).action()`, to `(background/background.message.js).INTERNAL.action()`,

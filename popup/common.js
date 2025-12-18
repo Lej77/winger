@@ -1,7 +1,9 @@
+// Objects, functions and types used across popup/*.js.
+
 import { NameMap } from '../name.js';
 
 /** @import { WindowId, BNodeId } from '../types.js' */
-/** @import { STORED_PROPS } from '../storage.js' */
+/** @import { PopupConfig } from '../storage.js' */
 
 /**
  * Window row element.
@@ -31,7 +33,7 @@ import { NameMap } from '../name.js';
 
 // Populated at init //
 
-/** @type {Partial<STORED_PROPS>} */
+/** @type {PopupConfig} */
 export const FLAGS = {};
 
 /** @type {NameField$[] & { $stashed: NameField$[] & { _startIndex: number } }} */

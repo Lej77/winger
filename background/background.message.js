@@ -8,7 +8,6 @@ import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
 /** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName } from '../types.js' */
-/** @import { STORED_PROPS } from '../storage.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
 browser.runtime.onMessageExternal.addListener(request => onMessage(EXTERNAL, request));
@@ -57,22 +56,24 @@ const INTERNAL = {
      * @see /popup/request.js#popup
      */
     async popup() {
-        /** @type {[Window[], Partial<STORED_PROPS> & { allow_private: boolean }, boolean]} */
-        let [windows, flags, allow_private] = await Promise.all([
+        /** @type {[Window[], PopupInitMessage['config']]} */
+        let [windows, config] = await Promise.all([
             browser.windows.getAll({ populate: true }),
-            Storage.getDict(['show_popup_bring_btn', 'show_popup_send_btn', 'set_title_preface', 'enable_stash', 'show_popup_stash_btn', 'show_popup_stashed_items', 'compact_popup']),
-            browser.extension.isAllowedIncognitoAccess(),
+            Storage.getPopupConfig(),
         ]);
         windows = Stash.Main?.nowStashing.excludeFrom(windows) ?? windows; // Exclude windows currently being stashed
-        flags.allow_private = allow_private;
-        const winfoProps = ['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'tabCount', 'type'];
-        winfoProps.push(flags.set_title_preface ? 'titleSansName' : 'title');
-        if (!flags.enable_stash) {
-            delete flags.show_popup_stash_btn;
-            delete flags.show_popup_stashed_items;
-        }
+        const winfoProps = [
+            'focused',
+            'givenName',
+            'incognito',
+            'lastFocused',
+            'minimized',
+            'tabCount',
+            'type',
+            config.set_title_preface ? 'titleSansName' : 'title',
+        ];
         const winfos = await Winfo.getAll(winfoProps, windows);
-        return { ...Winfo.arrange(winfos), flags };
+        return { ...Winfo.arrange(winfos), config };
     },
 
     /**

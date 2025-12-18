@@ -74,15 +74,15 @@ Promise.all([
     Chrome.update(nameMap);
 
     // Check for version update
-    const version = browser.runtime.getManifest().version;
-    if (version !== info.version) {
+    const _version = browser.runtime.getManifest().version;
+    if (_version !== info._version) {
         if (info.open_help_on_update) {
             // Open help page when there's a major or minor (not patch) version change
             const sansPatch = version => version.split('.', 2).join('.');
-            if (sansPatch(version) !== sansPatch(info.version))
+            if (sansPatch(_version) !== sansPatch(info._version))
                 Action.openHelp();
         }
         // Remember new version
-        Storage.set({ version });
+        Storage.set({ _version });
     }
 });

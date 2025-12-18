@@ -16,8 +16,6 @@ import * as Request from './request.js';
 import * as Status from './status.js';
 import * as Toolbar from './toolbar.js';
 
-/** @import { PopupInitMessage } from '../types.js' */
-
 Request.popup().then(init, initError);
 $body.addEventListener('click', onClick);
 $body.addEventListener('mousedown', onMouseDown);
@@ -28,10 +26,10 @@ $body.addEventListener('input', onInput);
 $body.addEventListener('focusin', onFocusIn);
 
 /**
- * @param {PopupInitMessage}
+ * @param {import('../types.js').PopupInitMessage}
  */
-function init({ fgWinfo, bgWinfos, flags }) {
-    Object.assign(FLAGS, flags);
+function init({ fgWinfo, bgWinfos, config }) {
+    Object.assign(FLAGS, config);
 
     const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
     $body.classList.toggle('nameless', !hasName);
