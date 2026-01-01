@@ -7,7 +7,7 @@ import * as Winfo from './winfo.js';
 import * as Storage from '../storage.js';
 import * as Name from '../name.js';
 
-/** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder } from '../types.js' */
+/** @import { WindowId, BNode, Winfo, PopupInitMessage, ActionRequest, StashFolder, ChromeComponentName } from '../types.js' */
 /** @import { STORED_PROPS } from '../storage.js' */
 
 browser.runtime.onMessage.addListener(request => onMessage(INTERNAL, request));
@@ -134,7 +134,7 @@ const INTERNAL = {
 
     /**
      * @param {Object} request
-     * @param {string} request.component
+     * @param {ChromeComponentName} request.component
      * @see /page/options.js#onFieldChanged
      */
     clear: ({ component }) => Chrome.clear(component),

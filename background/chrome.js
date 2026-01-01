@@ -3,7 +3,7 @@
 import * as Badge from './chrome.badge.js';
 import * as Storage from '../storage.js';
 
-/** @import { WindowId } from '../types.js' */
+/** @import { ChromeComponentName, WindowId } from '../types.js' */
 
 const TitlePreface = {
 
@@ -55,7 +55,7 @@ export async function update(nameMap) {
 }
 
 /**
- * @param {'Badge' | 'TitlePreface'} component
+ * @param {ChromeComponentName} component
  */
 export function clear(component) {
     ({ Badge, TitlePreface })[component]?.clear();

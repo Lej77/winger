@@ -121,5 +121,6 @@
  * @property {Tab[]} [tabs]
  * @property {WindowId} [windowId]
  */
+/** @typedef {'Badge' | 'TitlePreface'} ChromeComponentName */
 
 export {}
