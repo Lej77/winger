@@ -14,7 +14,10 @@ import { NameMap } from '../name.js';
  */
 /**
  * Name field element.
- * @typedef {HTMLInputElement & { _id: WindowId | BNodeId }} NameField$
+ * @typedef {HTMLInputElement & _NameField$} NameField$
+ * @typedef _NameField$
+ * @property {WindowId | BNodeId} _id
+ * @property {WindowRow$} $row
  */
 
 // Elements of the popup //
