@@ -59,9 +59,9 @@ const WindowRow = {
     init() {
         // Remove any toggled-off buttons
         const buttons = [
-            ['show_popup_bring', '.bring'],
-            ['show_popup_send', '.send'],
-            ['show_popup_stash', '.stash'],
+            ['show_popup_bring_btn', '.bring'],
+            ['show_popup_send_btn', '.send'],
+            ['show_popup_stash_btn', '.stash'],
         ];
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {

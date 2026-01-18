@@ -8,8 +8,8 @@
  * Default values of all possible stored properties.
  */
 export const STORED_PROPS = {
-    show_popup_bring: true,
-    show_popup_send: true,
+    show_popup_bring_btn: true,
+    show_popup_send_btn: true,
     keep_moved_tabs_selected: true,
 
     discard_minimized_window: false,
@@ -30,7 +30,7 @@ export const STORED_PROPS = {
     stash_home_folder_title: 'Stashed Windows',
     stash_nameless_with_title: false,
     auto_name_unstash: true,
-    show_popup_stash: true,
+    show_popup_stash_btn: true,
     show_popup_stashed_items: false,
 
     theme: '',
@@ -54,6 +54,9 @@ export async function init() {
         ['__version', 'version', dict => dict.__version], // v2.10.0
         ['stash_home_root', 'stash_home_root_id', dict => dict.stash_home_root], // v2.12.0
         ['stash_home_folder', 'stash_home_folder_title', dict => dict.stash_home_folder], // v2.12.0
+        ['show_popup_bring', 'show_popup_bring_btn', dict => dict.show_popup_bring], // v2.12.0
+        ['show_popup_send', 'show_popup_send_btn', dict => dict.show_popup_send], // v2.12.0
+        ['show_popup_stash', 'show_popup_stash_btn', dict => dict.show_popup_stash], // v2.12.0
     ];
 
     // Get all entries from local storage, plus defaults for missing settings
