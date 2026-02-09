@@ -1,6 +1,6 @@
 // Objects, functions and types used across popup/*.js.
 
-import { NameMap } from '../name.js';
+import { NameMap, validify } from '../name.js';
 
 /** @import { WindowId, BNodeId } from '../types.js' */
 /** @import { PopupConfig } from '../storage.js' */
@@ -61,6 +61,12 @@ export const $otherWindowRows = [];
 
 // Name map //
 
-/** @type {NameMap & { ready: () => NameMap }} */
+/**
+ * @type {NameMap & {
+ *     ready: () => NameMap,
+ *     validUniqueName: (name: string) => string,
+ * }}
+ */
 export const nameMap = new NameMap();
 nameMap.ready = () => nameMap.size ? nameMap : nameMap.populate($names);
+nameMap.validUniqueName = name => nameMap.uniquify(validify(name));

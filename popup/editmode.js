@@ -26,7 +26,6 @@ export function toggle() {
 }
 
 function activate() {
-    nameMap.ready();
     toggleActive(true);
     if ($omnibox.value.startsWith('/'))
         Omnibox.clear();
@@ -107,7 +106,7 @@ export async function handleInput($name) {
         return false;
 
     // Check name for validity, mark if invalid
-    const errorId = nameMap.checkForErrors($name.value.trim(), $name._id);
+    const errorId = nameMap.ready().checkForErrors($name.value.trim(), $name._id);
     toggleError($name, errorId);
 
     return true;

@@ -11,7 +11,6 @@ import * as Request from './request.js';
 import * as Row from './row.js';
 import * as Toolbar from './toolbar.js';
 
-import { validify } from '../name.js';
 import { set } from '../storage.js';
 
 /** @import { NameField$ } from './common.js' */
@@ -33,13 +32,7 @@ const EDITMODE_VALID_COMMANDS = new Set(['help', 'settings', 'options', 'edit', 
  * @returns {CommandCallback}
  */
 const namingActionRequestFn = command =>
-    ({ event, argument }) => Request.action({ event, command, argument: validUniqueName(argument) });
-
-/**
- * @param {string} name
- * @returns {string}
- */
-const validUniqueName = name => nameMap.ready().uniquify(validify(name));
+    ({ event, argument }) => Request.action({ event, command, argument: nameMap.validUniqueName(argument) });
 
 /**
  * @type {Object<string, CommandCallback>}
@@ -58,7 +51,7 @@ const COMMAND__CALLBACK = {
         const $name = $names[0];
         if (argument === $name.value)
             return;
-        const name = validUniqueName(argument);
+        const name = nameMap.validUniqueName(argument);
         if (await EditMode.saveNameUpdateUI($name, name))
             $name.value = name;
     },
@@ -78,7 +71,7 @@ const COMMAND__CALLBACK = {
         let name = (result[1] || result[0])?.trim();
         if (name === $name.value)
             return;
-        name = validUniqueName(name);
+        name = nameMap.validUniqueName(name);
         if (await EditMode.saveNameUpdateUI($name, name))
             $name.value = name;
     },
