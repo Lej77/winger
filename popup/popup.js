@@ -28,7 +28,7 @@ $body.addEventListener('focusin', onFocusIn);
 /**
  * @param {import('../types.js').PopupInitMessage}
  */
-function init({ fgWinfo, bgWinfos, config }) {
+async function init({ fgWinfo, bgWinfos, config }) {
     Object.assign(FLAGS, config);
 
     const hasName = fgWinfo.givenName || bgWinfos.find(winfo => winfo.givenName);
@@ -39,13 +39,13 @@ function init({ fgWinfo, bgWinfos, config }) {
     Omnibox.init();
 
     Row.addWindows(fgWinfo, bgWinfos);
-    if (FLAGS.show_popup_stashed_items)
-        Request.popupStashItems().then(folders => {
-            if (!folders.length)
-                return;
-            Row.addFolders(folders);
-            Row.toggleViewFolders();
-        });
+    if (FLAGS.show_popup_stashed_items) {
+        const folders = await Request.popupStashItems();
+        if (!folders.length)
+            return;
+        Row.addFolders(folders);
+        Row.toggleViewFolders();
+    }
     Omnibox.respondIfFilled();
 }
 
