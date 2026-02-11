@@ -49,10 +49,12 @@ export const updateChrome = (windowId, name) => browser.runtime.sendMessage({ ty
  * @returns {Promise<void>}
  */
 export async function action({ event, command, argument, $action }) {
-    /** @type {ActionRequest} */ const request = { type: 'action' };
+    /** @type {ActionRequest} */
+    const request = { type: 'action' };
 
     // Obtain `$row` and `request.action`
-    /** @type {WindowRow$} */ let $row;
+    /** @type {WindowRow$} */
+    let $row;
     if (command) {
         $row = event.target.closest('window-row') || $currentWindowRow;
         request.action = command;

@@ -137,7 +137,7 @@ const WindowRow = {
         // Add data
         $row._id = id;
         $row.setAttribute('aria-labelledby', id);
-        $row.$name.id = id; // For aria-labelledby
+        $row.$name.id = id; // For `$row`'s `aria-labelledby` to reference `$name`'s current value
         $row.$name._id = id;
         $row.$name.value = givenName;
         $row.$name.placeholder = title;
@@ -149,6 +149,7 @@ const WindowRow = {
 };
 
 /**
+ * Add stashed-window rows. Assumes `folders` is not empty.
  * @param {BNode[]} folders
  */
 export function addFolders(folders) {
@@ -186,6 +187,7 @@ export function addFolders(folders) {
 }
 
 /**
+ * Show or hide stashed-window rows. Assumes they are already added.
  * @param {Object} [config]
  * @param {boolean} [config.scrollIntoView]
  */

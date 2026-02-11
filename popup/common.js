@@ -20,7 +20,8 @@ import { NameMap, validify } from '../name.js';
 /** @typedef {{ _id?: WindowId | BNodeId }} IdStore */
 /** @typedef {{ $row: WindowRow$ }} WindowRowCell */
 
-// Elements of the popup //
+
+// Main elements of the popup //
 
 /** @type {HTMLBodyElement} */ export const $body = document.body;
 /** @type {WindowRow$} */ export const $currentWindowRow = document.getElementById('currentWindow');
@@ -30,17 +31,34 @@ import { NameMap, validify } from '../name.js';
 /** @type {HTMLElement} */ export const $toolbar = $body.querySelector('footer');
 /** @type {HTMLElement} */ export const $status = $toolbar.querySelector('status-bar');
 
-// Populated at init //
 
-/** @type {PopupConfig} */
+// Element check //
+
+/** @param {HTMLElement?} $el @returns {boolean} */ export const isButton = $el => $el?.tagName === 'BUTTON';
+/** @param {HTMLElement?} $el @returns {boolean} */ export const isField = $el => $el?.tagName === 'INPUT';
+/** @param {HTMLElement?} $el @returns {boolean} */ export const isNameField = $el => $el?.classList.contains('name');
+/** @param {HTMLElement?} $el @returns {boolean} */ export const isRow = $el => $el?.tagName === 'WINDOW-ROW';
+/** @param {HTMLElement?} $el @returns {boolean} */ export const isInToolbar = $el => $el?.parentElement === $toolbar;
+
+
+// Collections populated at init //
+
+/**
+ * Populated in `(popup.js).init()`.
+ * @type {PopupConfig}
+ */
 export const FLAGS = {};
 
-/** @type {NameField$[] & { $stashed: NameField$[] & { _startIndex: number } }} */
+/**
+ * Populated in `(row.js).addWindows()`.
+ * @type {NameField$[] & { $stashed: NameField$[] & { _startIndex: number } }}
+ */
 export const $names = [];
 
 /**
- * Original order of only window-rows, unlike `$otherWindowsList.children` whose order can change and may contain window-headings.
- * `$withHeadings` has all rows and headings in original order.
+ * Original order of ONLY window-rows, unlike `$otherWindowsList.children` whose order can change and may contain window-headings.
+ * `$otherWindowRows.$withHeadings` contains all rows and headings in original order, i.e. the "full snapshot".
+ * Populated in `(row.js).addWindows()`.
  * @type {WindowRow$[] & {
  *     $headingMinimized: HTMLElement,
  *     $stashed?: WindowRow$[] & { _startIndex: number },
@@ -50,13 +68,6 @@ export const $names = [];
  */
 export const $otherWindowRows = [];
 
-// Element type //
-
-/** @param {HTMLElement?} $el @returns {boolean} */ export const isButton = $el => $el?.tagName === 'BUTTON';
-/** @param {HTMLElement?} $el @returns {boolean} */ export const isField = $el => $el?.tagName === 'INPUT';
-/** @param {HTMLElement?} $el @returns {boolean} */ export const isNameField = $el => $el?.classList.contains('name');
-/** @param {HTMLElement?} $el @returns {boolean} */ export const isRow = $el => $el?.tagName === 'WINDOW-ROW';
-/** @param {HTMLElement?} $el @returns {boolean} */ export const isInToolbar = $el => $el?.parentElement === $toolbar;
 
 // Name map //
 

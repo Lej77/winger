@@ -43,10 +43,10 @@ function done() {
 }
 
 /**
- * @param {boolean} isActivate
+ * @param {boolean} doActivate
  */
-function toggleActive(isActivate) {
-    isActive = isActivate;
+function toggleActive(doActivate) {
+    isActive = doActivate;
     $body.classList.toggle('edit', isActive);
     toggleNameFields(isActive);
     if (isFiltered)
