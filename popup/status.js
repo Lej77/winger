@@ -33,7 +33,7 @@ const sc = {
     action: event => sc.action.cache ??= event.target?.dataset.action || '',
     isStashAction: event => sc.isStashAction.cache ??= sc.action(event) === 'stash',
     isStashCommand: () => sc.isStashCommand.cache ??= Omnibox.Parsed.command === 'stash',
-    isRowStashed: event => sc.isRowStashed.cache ??= event.target?.closest('li')?.matches('.stashed') || false,
+    isRowStashed: event => sc.isRowStashed.cache ??= event.target?.closest('window-row')?.matches('.stashed') || false,
     isTopRowStashed: event => sc.isTopRowStashed.cache ??=
         event.target === $omnibox && !Omnibox.Parsed.command && Filter.$shownRows[0]?.matches('.stashed') || false,
     isDestinationStashed: event => sc.isDestinationStashed.cache ??= sc.isRowStashed(event) || sc.isTopRowStashed(event),

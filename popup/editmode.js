@@ -61,7 +61,7 @@ export function handleMouseDown($el) {
         return true;
 
     /** @type {NameField$} */
-    const $name = $el.closest('li')?.$name;
+    const $name = $el.closest('window-row')?.$name;
     if ($name) {
         $name.focus();
         $name.select();

@@ -54,7 +54,7 @@ export async function action({ event, command, argument, $action }) {
     // Obtain `$row` and `request.action`
     /** @type {WindowRow$} */ let $row;
     if (command) {
-        $row = event.target.closest('li') || $currentWindowRow;
+        $row = event.target.closest('window-row') || $currentWindowRow;
         request.action = command;
         if (argument)
             request.argument = argument;
