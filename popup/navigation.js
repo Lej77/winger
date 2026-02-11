@@ -1,6 +1,7 @@
 import {
     $currentWindowRow,
     $omnibox,
+    $otherWindowsList,
     $toolbar,
     isButton,
     isRow,
@@ -119,9 +120,8 @@ const Navigator = {
         if (isCurrentWindow($el))
             return $omnibox;
         if (isOmnibox($el))
-            return rowOrCell($shownRows[0]) || toolbar();
-        const $nextRow = row($el).nextElementSibling;
-        return rowOrCell($nextRow) || toolbar();
+            return rowOrCell($otherWindowsList.firstElementChild) || toolbar();
+        return rowOrCell(row($el).nextElementSibling) || toolbar();
     },
 
     /** @type {KeyProcessor} */
@@ -131,9 +131,8 @@ const Navigator = {
         if (isCurrentWindow($el))
             return toolbar();
         if (isInToolbar($el))
-            return rowOrCell($shownRows.at(-1)) || $omnibox;
-        const $nextRow = row($el).previousElementSibling;
-        return rowOrCell($nextRow) || $omnibox;
+            return rowOrCell($otherWindowsList.lastElementChild) || $omnibox;
+        return rowOrCell(row($el).previousElementSibling) || $omnibox;
     },
 
     /** @type {KeyProcessor} */

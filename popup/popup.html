@@ -28,6 +28,13 @@
       <window-heading class="minimized" data-title="Minimized"><hr></window-heading>
     </window-list>
 
+    <window-row id="newWindow" tabindex="0" data-action="switch" title="New" aria-label="New window" hidden>
+      <button type="button" class="tabAction send" data-action="send" title="Send" hidden></button>
+      <button type="button" class="tabAction bring" data-action="bring" title="Bring" hidden></button>
+      <div class="icon"></div>
+      <input class="name" placeholder="New window" tabindex="-1" readonly>
+    </window-row>
+
     <footer>
       <status-bar>Loading...</status-bar>
       <button type="button" id="help" title="Help"></button>

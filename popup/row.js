@@ -2,9 +2,11 @@ import {
     FLAGS,
     $body,
     $currentWindowRow,
+    $newWindowRow,
     $otherWindowsList,
     $otherWindowRows,
     $names,
+    nameMap,
 } from './common.js';
 import * as Filter from './filter.js';
 import * as Request from './request.js';
@@ -54,12 +56,13 @@ export function addWindows(fgWinfo, bgWinfos) {
 
     // Populate other globals
     $otherWindowRows.$headingMinimized = $headingMinimized;
-    $otherWindowRows.$withHeadings = [...$otherWindowsList.children];
+    $otherWindowRows.$withHeadings = [...$otherWindowsList.children]; // Take the initial "full snapshot"
 }
 
 const WindowRow = {
     /**
-     * Use the pre-hydrated current-window row to create a window row template, then hydrate the current-window row.
+     * Use the pre-hydrated current-window row to create a window row template, then hydrate current-window row.
+     * Hydrate new-window row also.
      * @param {Winfo} fgWinfo
      */
     init(fgWinfo) {
@@ -71,12 +74,15 @@ const WindowRow = {
         ];
         let buttonCount = buttons.length;
         for (const [setting, selector] of buttons) {
-            /** @type {HTMLButtonElement} */
-            const $button = $currentWindowRow.querySelector(selector);
+            /** @type {HTMLButtonElement} */ const $buttonInCurrent = $currentWindowRow.querySelector(selector);
+            /** @type {HTMLButtonElement?} */ const $buttonInNew = $newWindowRow.querySelector(selector);
             if (FLAGS[setting]) {
-                $button.hidden = false;
+                $buttonInCurrent.hidden = false;
+                if ($buttonInNew)
+                    $buttonInNew.hidden = false;
             } else {
-                $button.remove();
+                $buttonInCurrent.remove();
+                $buttonInNew?.remove();
                 CELL_SELECTORS.delete(selector);
                 buttonCount--;
             }
@@ -94,6 +100,10 @@ const WindowRow = {
         $currentWindowRow.querySelectorAll('.tabAction').forEach(disableElement);
         $currentWindowRow.$name.tabIndex = 0;
         $currentWindowRow.$name.title = '';
+
+        // Hydrate new-window row
+        $newWindowRow.classList.toggle('private', fgWinfo.incognito);
+        hydrateCellReferences($newWindowRow);
     },
 
     /**
@@ -168,6 +178,8 @@ export function addFolders(folders) {
     $otherWindowRows.$stashed._startIndex = $otherWindowRows.length;
     $names.$stashed = $_names;
     $names.$stashed._startIndex = $names.length;
+    if (nameMap.size)
+        nameMap.populate($_names); // If already populated with window names, add folder names too
 
     // Hydrate bookmark counts
     Request.popupStashSizes(folders).then(folders => FolderRow.hydrateCounts($rows, folders));
@@ -245,11 +257,12 @@ const FolderRow = {
  */
 function hydrateCellReferences($row) {
     for (const selector of CELL_SELECTORS) {
-        /** @type {HTMLElement & { $row: WindowRow$ }} */
+        /** @type {(HTMLElement & { $row: WindowRow$ })?} */
         const $cell = $row.querySelector(selector);
-        const reference = selector.replace('.', '$');
-        $cell.$row = $row;
-        $row[reference] = $cell;
+        if ($cell) {
+            $row[selector.replace('.', '$')] = $cell;
+            $cell.$row = $row;
+        }
     }
 }
 

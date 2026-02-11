@@ -7,9 +7,11 @@ import {
     isField,
     isNameField,
     isInToolbar,
+    $newWindowRow,
 } from './common.js';
 import * as Omnibox from './omnibox.js';
 import * as Request from './request.js';
+import { isFiltered } from './filter.js';
 
 import * as Name from '../name.js';
 import indicateSuccess from '../success.js';
@@ -47,6 +49,8 @@ function toggleActive(isActivate) {
     isActive = isActivate;
     $body.classList.toggle('edit', isActive);
     toggleNameFields(isActive);
+    if (isFiltered)
+        $newWindowRow.hidden = isActive;
 }
 
 /**

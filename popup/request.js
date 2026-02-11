@@ -1,6 +1,6 @@
 /* Send messages to the background frame */
 
-import { $currentWindowRow } from './common.js';
+import { $currentWindowRow, $newWindowRow } from './common.js';
 import * as Modifier from '../modifier.js';
 import { getValue } from '../storage.js';
 
@@ -76,6 +76,10 @@ export async function action({ event, command, argument, $action }) {
     if ($row.matches('.tabless') && (isStashAction || modifiers.length))
         return;
 
+    if ($row === $newWindowRow) {
+        request.argument = $row.$name.value;
+        request.action = ({ switch: 'new', send: 'kick', bring: 'pop' })[action];
+    } else
     if ($row.matches('.stashed')) {
         // Only allow `stash` and `send` on stashed window
         if (!isStashAction && request.action !== 'send')

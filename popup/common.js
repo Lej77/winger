@@ -7,25 +7,24 @@ import { NameMap, validify } from '../name.js';
 
 /**
  * Window row element.
- * @typedef {HTMLElement & _WindowRow$} WindowRow$
+ * @typedef {_WindowRow$ & IdStore & HTMLElement} WindowRow$
  * @typedef _WindowRow$
- * @property {WindowId | BNodeId} _id
  * @property {number} [_nameLength]
+ * @property {WindowRowCell & HTMLButtonElement} [$send]
+ * @property {WindowRowCell & HTMLButtonElement} [$bring]
  * @property {NameField$} $name
- * @property {HTMLElement} $tabCount
+ * @property {WindowRowCell & HTMLElement} [$tabCount]
+ * @property {WindowRowCell & HTMLButtonElement} [$stash]
  */
-/**
- * Name field element.
- * @typedef {HTMLInputElement & _NameField$} NameField$
- * @typedef _NameField$
- * @property {WindowId | BNodeId} _id
- * @property {WindowRow$} $row
- */
+/** @typedef {WindowRowCell & IdStore & HTMLInputElement} NameField$ */
+/** @typedef {{ _id?: WindowId | BNodeId }} IdStore */
+/** @typedef {{ $row: WindowRow$ }} WindowRowCell */
 
 // Elements of the popup //
 
 /** @type {HTMLBodyElement} */ export const $body = document.body;
 /** @type {WindowRow$} */ export const $currentWindowRow = document.getElementById('currentWindow');
+/** @type {WindowRow$} */ export const $newWindowRow = document.getElementById('newWindow'); // Initially outside `$otherWindowsList` and therefore NOT in the "full snapshot"
 /** @type {HTMLInputElement} */ export const $omnibox = document.getElementById('omnibox');
 /** @type {HTMLElement} */ export const $otherWindowsList = $body.querySelector('window-list');
 /** @type {HTMLElement} */ export const $toolbar = $body.querySelector('footer');

@@ -138,12 +138,12 @@ body:not(.viewstash) .stashed {
 .icon {
     position: relative;
 }
-window-row.stashed {
+window-row.stashed,
+#newWindow {
     .icon::after {
-        content: url("/icons/folder.svg");
-        height: var(--popup-icon-size);
         position: absolute;
         left: calc(var(--popup-icon-size) - 8px);
+        height: var(--popup-icon-size);
         transform: translateY(-50%);
         opacity: .25;
     }
@@ -153,6 +153,12 @@ window-row.stashed {
     .name {
         padding-left: calc(var(--popup-icon-size) + 8px);
     }
+}
+window-row.stashed .icon::after {
+    content: url("/icons/folder.svg");
+}
+#newWindow .icon::after {
+    content: url("/icons/plus.svg");
 }
 
 
@@ -199,6 +205,9 @@ input {
         #currentWindow & {
             font-weight: bold;
         }
+    }
+    #newWindow & {
+        opacity: .65;
     }
     window-row.private & {
         color: var(--private-text-color);

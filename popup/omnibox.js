@@ -4,6 +4,7 @@ import {
     $omnibox,
     $names,
     $otherWindowRows,
+    $newWindowRow,
 } from './common.js';
 import * as EditMode from './editmode.js';
 import * as Filter from './filter.js';
@@ -280,7 +281,7 @@ function handleEnterKey(event) {
     if (EditMode.isActive)
         return;
 
-    const $action = Filter.$shownRows?.[0]; // First row below omnibox
+    const $action = Filter.$shownRows?.[0] || (Filter.isFiltered && $newWindowRow); // First row below omnibox
     if ($action)
         Request.action({ event, $action });
 }
