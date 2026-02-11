@@ -22,7 +22,7 @@
         <span style="font-size: 2.5rem; font-weight: normal"><b>Winger</b>: A <b>Win</b>dow Mana<b>ger</b></span>
         <br><b>A Comprehensive Guide</b>
       </h1>
-      <p>Last updated for v2.11.0 (12 Aug 2025)
+      <p>Last updated for v2.12.0 (26 Feb 2026)
         <br><label><input type="checkbox" id="open_help_on_update"> Show this page after every non-patch release</label>
         <br><a href="https://addons.mozilla.org/firefox/addon/winger/versions/" target="_blank">View release notes</a>
       </p>
@@ -31,7 +31,7 @@
     <article id="intro" class="center mx mb5" style="max-width: 730px">
       <p>Winger helps you manage multiple browser windows, no matter how many. With Winger you can
         <span class="nowrap"><a href="#name">name</a> them</span>,
-        <span class="nowrap"><a href="#find">find</a> them</span>,
+        <span class="nowrap"><a href="#find">find/filter</a> them</span>,
         <span class="nowrap"><a href="#basic">switch</a> between them</span>,
         <span class="nowrap"><a href="#basic">move tabs</a> between them</span>,
         <span class="nowrap"><a href="#stash">stash</a> them away</span>,
@@ -149,7 +149,7 @@
             </div>
             <div class="popup-row">
               <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-              <span class="popup-name muted">New Tab</span><small class="popup-tabCount">5</small>
+              <span class="popup-name muted">Firefox View</span><small class="popup-tabCount">5</small>
               <span class="popup-btn stash"></span>
             </div>
             <div class="popup-heading"><hr><header>Minimized</header></div>
@@ -243,14 +243,14 @@
             <p>
               To enter <strong>edit mode</strong>, click on the current window's name, or press <kbd>▲Up</kbd> <kbd>Enter</kbd> from the omnibox.
               <ul>
-                <li>Alternatively, type <samp>/edit</samp> <kbd>Enter</kbd> in the omnibox to toggle edit mode on or off.</li>
+                <li><p>Alternatively, type <samp>/edit</samp> <kbd>Enter</kbd> in the omnibox to toggle edit mode on or off.</p></li>
+                <li><p>In edit mode, all <strong>name fields</strong> become targetable and editable, and most other features disabled.</p></li>
+                <li><p>Pressing <kbd>Enter</kbd> in any name field exits edit mode.</p></li>
               </ul>
             </p>
-            <p>In edit mode, all names become targetable and editable, and <a href="#basic">basic actions</a> disabled.</p>
             <p>Names should be unique and may not start with a forward slash (<samp>/</samp>).</p>
             <p>A valid window name is saved when you press <kbd>Enter</kbd> in the name field, or when you de-target it (by clicking or navigating away). Invalid names, such as duplicates, are reverted upon any save attempts.</p>
-            <p>Pressing <kbd>Enter</kbd> in a name field exits edit mode.</p>
-            <p>Closing the panel, by clicking outside it or by pressing <kbd>Esc</kbd>, exits edit mode without saving changes to the targeted name.</p>
+            <p>Closing the panel, by clicking outside it or by pressing <kbd>Esc</kbd>, exits edit mode without saving changes to a targeted name.</p>
           </section>
         </div>
         <div class="col">
@@ -367,70 +367,72 @@
     </article>
 
     <article id="omnibox" class="mb5">
-      <section class="mb2">
-        <h2 class="center">The omnibox</h2>
-        <p>The omnibox is a multi-purpose, multi-talented input field that vastly accelerates operating Winger by keyboard. Here's what you can do with it:</p>
-      </section>
-      <section class="mx1-content mb2">
-        <h3>Perform basic actions on the topmost other window</h3>
-        <p>Press <kbd>Enter</kbd>, <kbd>Ctrl</kbd>+<kbd>Enter</kbd> or <kbd>Shift</kbd>+<kbd>Enter</kbd> in the omnibox to <strong>switch</strong>, <strong>send</strong> or <strong>bring</strong> to the first window listed below it.</p>
-        <p>This means upon opening the panel, you can via keyboard immediately perform a <a href="#basic">basic action</a> on the previously seen window.</p>
-      </section>
-      <section id="find">
-        <div class="row">
-          <div class="col mx1-content">
+      <h2 class="center">The omnibox</h2>
+      <div class="row">
+        <div class="col mx1">
+          <p>The omnibox is a multi-purpose, multi-talented input field that vastly accelerates operating Winger by keyboard. Here's what you can do with it:</p>
+          <section class="mb1" id="find">
             <h3>Find/filter windows</h3>
-            <p>Looking for a window? Type its name or title, or part of it.</p>
-            <p>This filters the list of other windows. Thus you can change which window appears right under the omnibox. Also, a shortened window list can be traversed with arrow keys in fewer steps.</p>
-            <p>Filtering works in <a href="#name">edit mode</a> too.</p>
-          </div>
-          <div class="col">
-            <figure class="popup popup-rounded" role="img" aria-label="Winger panel filtering windows">
-              <div class="popup-row">
-                <span class="popup-btn"></span><span class="popup-btn"></span>
-                <strong class="popup-name">work</strong><small class="popup-tabCount">20</small>
-                <span class="popup-btn stash"></span>
-              </div>
-              <div class="popup-omnibox focused">ga</div>
-              <div class="popup-row">
-                <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-                <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
-                <span class="popup-btn stash"></span>
-              </div>
-              <div class="popup-row">
-                <span class="popup-btn send"></span><span class="popup-btn bring"></span>
-                <span class="popup-name">garden 🪴</span><small class="popup-tabCount">18</small>
-                <span class="popup-btn stash"></span>
-              </div>
-              <div hidden>
-                <div class="popup-row invisible"><small class="popup-tabCount">3</small></div>
-                <div class="popup-row invisible"><small class="popup-tabCount">7</small></div>
-                <div class="popup-row invisible"><small class="popup-tabCount">2</small></div>
-              </div>
-              <footer class="popup-row muted no-border">
-                <div class="popup-status"># windows / # tabs</div>
-                <span class="popup-tool help"></span>
-              </footer>
-            </figure>
-          </div>
+            <p>Looking for a window? Type its name (or otherwise its title), or part of it.</p>
+            <p>This filters the list of other windows. If your desired window hasn't risen to the top of the list, the filtered list is at least shorter and thus easier to scan visually and traverse with arrow keys.</p>
+          </section>
         </div>
-        <div class="mx1-content mb2">
-          <p class="m0">Combine these two abilities to quickly switch to another window by keyboard, like so:</p>
-          <ol class="pl2">
-            <li><kbd class="js-shortcut" data-shortcut="_execute_browser_action">F1</kbd> to open the panel.</li>
-            <li>If the desired window is not immediately below the omnibox, start typing its name or title until it is.</li>
-            <li><kbd>Enter</kbd>.</li>
-          </ol>
+        <div class="col">
+          <figure class="popup popup-rounded" role="img" aria-label="Winger panel filtering windows">
+            <div class="popup-row">
+              <span class="popup-btn"></span><span class="popup-btn"></span>
+              <strong class="popup-name">work</strong><small class="popup-tabCount">20</small>
+              <span class="popup-btn stash"></span>
+            </div>
+            <div class="popup-omnibox focused">ga</div>
+            <div class="popup-row">
+              <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+              <span class="popup-name">gaming</span><small class="popup-tabCount">5</small>
+              <span class="popup-btn stash"></span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+              <span class="popup-name">garden 🪴</span><small class="popup-tabCount">18</small>
+              <span class="popup-btn stash"></span>
+            </div>
+            <div class="popup-row">
+              <span class="popup-btn send"></span><span class="popup-btn bring"></span>
+              <span class="popup-name icon plus muted">ga</span><small class="popup-tabCount nocount"></small>
+              <span class="popup-btn togglePrivate"></span>
+            </div>
+            <div hidden>
+              <div class="popup-row invisible"><small class="popup-tabCount">3</small></div>
+              <div class="popup-row invisible"><small class="popup-tabCount">7</small></div>
+              <div class="popup-row invisible"><small class="popup-tabCount">2</small></div>
+            </div>
+            <footer class="popup-row muted no-border">
+              <div class="popup-status"># windows / # tabs</div>
+              <span class="popup-tool help"></span>
+            </footer>
+          </figure>
         </div>
-      </section>
-      <section id="slash" class="mx1-content mb2">
+      </div>
+      <div class="row equal-col">
+        <section class="col mx1 mb1">
+          <h3><a href="#basic">Basic actions</a> on the topmost other window</h3>
+          <p>Press <kbd>Enter</kbd> to switch to the window immediately below the omnibox. (Or modify with <kbd>Ctrl</kbd>/<kbd>Shift</kbd> to send/bring, as usual.)</p>
+          <p>This saves you a <kbd>▼Down</kbd> or <kbd>Tab</kbd> keystroke for targeting it first.</p>
+          <p>Combined with filtering, this helps make Winger an efficient window switcher, like so: &nbsp;<kbd class="js-shortcut" data-shortcut="_execute_browser_action">F1</kbd> &rarr; type until the desired window is listed first &rarr; <kbd>Enter</kbd>.</p>
+        </section>
+        <section class="col mx1 mb1">
+          <h3>Open new windows</h3>
+          <p>Also when you type in the omnibox, a <strong>new window</strong> row appears at the end of the list. It represents a nonexistent window, named based on what you typed, and a basic action on it will create the destination window (private window if the private button is toggled on).</p>
+          <p>Thus you can type an unused, unique enough name &ndash; which should leave only the new window row visible &ndash; and press <kbd>Enter</kbd> to open a new window by that name.</p>
+        </section>
+      </div>
+      <section id="slash" class="mx1 mb1">
         <h3>Slash commands</h3>
         <p>
           Certain actions can be performed by typing one of these in the omnibox followed by <kbd>Enter</kbd>.<br>
-          Slash commands auto-complete as you type, and work if partially typed too.
+          Slash commands auto-complete as you type, and work if partially typed too. The other omnibox abilities don't apply when typing slash commands.
         </p>
         <div class="row equal-col">
-          <div class="col">
+          <div class="col mr1">
             <dl class="mb2">
               <dt><samp>/help</samp> or <samp>/h</samp> or <samp>/</samp></dt>
               <dd class="mb1">Open this help page.</dd>
@@ -572,11 +574,11 @@
               <p>Look in the stash home folder to find your stash folders ("stashed windows") via the usual ways to view bookmarks.
                 <br>Whether in or out of the stash home, you can right-click <em>any</em> folder or bookmark for these menu commands:
                 <br><cite><u>W</u>inger &rarr; <u>S</u>end Tab Here</cite>
-                <br><cite><u>W</u>inger &rarr; <u>U</u>nstash</cite></p>
+                <br><cite><u>W</u>inger &rarr; <u>U</u>nstash Folder/Bookmark</cite></p>
             </li>
             <li>
               <p>To toggle displaying stash folders in the panel, type <samp>/viewstash</samp> <kbd>Enter</kbd> in the omnibox.
-                <br>When displayed, "stashed windows" are findable, renamable, can be sent tabs to, and can be unstashed. (No switching or bringing tabs to them since they're not real windows.)</p>
+                <br>When displayed, "stashed windows" are findable, renamable, can be sent tabs to, and can be unstashed. (No switching or bringing since they're not real windows.)</p>
             <figure class="popup popup-rounded mb1" role="img" aria-label="Winger panel with stashed window">
               <div class="popup-row">
                 <span class="popup-btn"></span><span class="popup-btn"></span>
@@ -608,7 +610,7 @@
               <div class="popup-heading"><hr><header>Stashed</header></div>
               <div class="popup-row">
                 <span class="popup-btn send"></span><span class="popup-btn invisible"></span>
-                <span class="popup-name folder">work: Client A</span><small class="popup-tabCount nocount">13</small>
+                <span class="popup-name icon folder">work: Client A</span><small class="popup-tabCount nocount">13</small>
                 <span class="popup-btn unstash"></span>
               </div>
               <footer class="popup-row muted no-border">
@@ -624,11 +626,11 @@
           <h3>Unstashing</h3>
           <div class="mediaObject">
             <figure class="actionBtn"><img src="../icons/unstash.svg" alt=""></figure>
-            <p>To <strong>unstash a bookmark folder</strong>: right-click on it and click <cite><u>W</u>inger &rarr; <u>U</u>nstash</cite>. Or in the panel, click on its <strong>unstash</strong> button.
+            <p>To <strong>unstash a bookmark folder</strong>: right-click on it &rarr; <cite><u>W</u>inger &rarr; <u>U</u>nstash Folder</cite>. Or in the panel, click on its <strong>unstash</strong> button.
               <br>The folder will be deleted, and an identically-named window will open and populate with the formerly-bookmarked tabs, reproduced with their properties as annotated, if any.</p>
           </div>
           <ul class="children-mb1">
-            <li>You can also <strong>unstash a bookmark</strong> via right-click &rarr; <cite><u>W</u>inger &rarr; <u>U</u>nstash</cite>. It will delete and open the bookmark as a new tab in the current window.</li>
+            <li>You can also <strong>unstash a bookmark</strong> via right-click &rarr; <cite><u>W</u>inger &rarr; <u>U</u>nstash Bookmark</cite>. It will delete and open the bookmark as a new tab in the current window.</li>
             <li>Unstashed tabs are <a href="#reopened">reopened tabs</a>: unloaded if possible, as placeholder tabs if necessary.</li>
             <li>When unstashing a container tab, Winger assigns a container that matches the captured container name. If no match is found, Winger will create a new container with that name to guarantee containment.</li>
             <li>If the folder has subfolders, nothing happens to them and the folder itself is not deleted; it is only emptied of its own bookmarks.</li>

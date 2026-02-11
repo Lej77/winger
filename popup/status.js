@@ -58,7 +58,7 @@ const hintType = {
     edit: {
         condition: () => EditMode.isActive,
         content: event => isNameField(event.target) ?
-            [[`Edit mode: Type a name then `], ['▲', 'kbd'], [` or `], ['▼', 'kbd'], [`to save, or `], ['Enter', 'kbd'], [` to save and exit edit mode`]] :
+            [[`Edit mode: Type a name then `], ['▲', 'kbd'], [` or `], ['▼', 'kbd'], [` to save, or `], ['Enter', 'kbd'], [` to save and exit edit mode`]] :
             [[`Edit mode: Click on a window row or navigate with `], ['▲', 'kbd'], [` `], ['▼', 'kbd'], [`. Enter `], ['/edit', 'samp'], [` to exit edit mode`]],
     },
     stashCopyTab: {

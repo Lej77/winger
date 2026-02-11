@@ -54,17 +54,18 @@
         font-style: italic;
         color: var(--muted-text-color);
     }
-    &.folder::before {
-        content: url("/icons/folder.svg");
+    &.icon::before {
         display: inline-block;
         height: 16px;
         margin-right: .25rem;
         transform: translateY(25%);
         opacity: .25;
     }
-    .dark &.folder::before {
+    .dark &.icon::before {
         filter: invert(1);
     }
+    &.folder::before { content: url("/icons/folder.svg"); }
+    &.plus::before { content: url("/icons/plus.svg"); }
 }
 :is(.popup-omnibox, .popup-name).focused::after {
     content: "|";
@@ -105,6 +106,7 @@
     &.bring { background-image: url("../icons/bring.svg"); }
     &.stash { background-image: url("../icons/stash.svg"); }
     &.unstash { background-image: url("../icons/unstash.svg"); }
+    &.togglePrivate { background-image: url("../icons/private.svg"); background-size: 70%; }
 }
 
 .popup.edit {

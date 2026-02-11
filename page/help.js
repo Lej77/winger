@@ -84,7 +84,7 @@ function updateMockPopups() {
         if (!statusText.includes('#'))
             continue;
         const $tabCounts = [...QSA('.popup-tabCount:not(.nocount)', $popup)];
-        const tabCount = $tabCounts.reduce((total, $el) => total + parseInt($el.textContent), 0);
+        const tabCount = $tabCounts.reduce((total, $el) => total + Number($el.textContent), 0);
         const windowCount = $tabCounts.length;
         $status.textContent = statusText.replace('#', windowCount).replace('#', tabCount);
     }
