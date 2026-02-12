@@ -186,7 +186,7 @@ export function toggleViewFolders({ scrollIntoView } = {}) {
         Filter.$shownRows.push(...$rows);
         $names.push(...$names.$stashed);
         if (scrollIntoView)
-            $otherWindowRows.$headingStashed.previousElementSibling?.scrollIntoView({ behavior: 'smooth' });
+            $rows[0].scrollIntoView({ behavior: 'smooth' });
     } else {
         const rowIndex = $otherWindowRows.$stashed._startIndex;
         $otherWindowRows.splice(rowIndex);
