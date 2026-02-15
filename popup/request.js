@@ -68,29 +68,29 @@ export async function action({ event, command, argument, $action }) {
     if (!request.action)
         return;
 
-    const isStashAction = request.action === 'stash';
     const modifiers = Modifier.get(event);
     request.action = Modifier.modify(request.action, modifiers);
-
-    // Disallow stashing a "tabless" window
-    // Disallow sending/bringing to a "tabless" window via modifier-click on row
-    // (action buttons should already be disabled)
-    if ($row.matches('.tabless') && (isStashAction || modifiers.length))
-        return;
+    const { action } = request;
 
     if ($row === $newWindowRow) {
         request.argument = $row.$name.value;
         request.action = ({ switch: 'new', send: 'kick', bring: 'pop' })[action];
     } else
+    if ($row.matches('.tabless')) {
+        // Disallow send/bring/stash on a "tabless" window
+        // (action buttons should already be disabled as well)
+        if (action !== 'switch')
+            return;
+    } else
     if ($row.matches('.stashed')) {
-        // Only allow `stash` and `send` on stashed window
-        if (!isStashAction && request.action !== 'send')
+        // Only allow send/stash on "stashed" window
+        if (action !== 'send' && action !== 'stash')
             return;
         request.folderId = $row._id;
         request.remove = !modifiers.includes(Modifier.STASHCOPY);
     } else {
         request.windowId = $row._id;
-        if (isStashAction) {
+        if (action === 'stash') {
             const $name = $row.$name;
             let name = $name.value;
             if (!name && await getValue('stash_nameless_with_title'))
@@ -98,7 +98,7 @@ export async function action({ event, command, argument, $action }) {
             request.name = name;
             request.remove = !modifiers.includes(Modifier.STASHCOPY);
         } else {
-            if (request.action === 'send' && $row.matches('.minimized'))
+            if (action === 'send' && $row.matches('.minimized'))
                 request.sendToMinimized = true;
         }
     }
