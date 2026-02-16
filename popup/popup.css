@@ -304,13 +304,14 @@ button {
             opacity: .1;
         }
     }
-    &.tabAction {
-        window-row.reopenTabs &:is(:hover, :focus) {
-            background-color: var(--popup-private-button-color);
-        }
-        &[disabled] {
-            visibility: hidden;
-        }
+    &.tabAction[disabled] {
+        visibility: hidden;
+    }
+    :is(#currentWindow:not(.private) ~ window-list window-row.private,
+        #currentWindow.private ~ window-list window-row:not(.private)
+    ):not(.stashed) &.tabAction:is(:hover, :focus) {
+        /* When current-window is private and other-window is not, or vice versa: indicate that a tab action will be a reopen operation */
+        background-color: var(--popup-private-button-color);
     }
     &.send  { background-image: url("../icons/send.svg"); }
     &.bring { background-image: url("../icons/bring.svg"); }

@@ -33,12 +33,10 @@ export function addWindows(fgWinfo, bgWinfos) {
     /** @type {HTMLElement} */
     const $headingMinimized = $otherWindowsList.querySelector('window-heading.minimized');
     const $listFragment = document.createDocumentFragment();
-    const currentIncognito = fgWinfo.incognito;
 
     // Create other-window rows
     for (const winfo of bgWinfos) {
-        /** @type {WindowRow$} */
-        const $row = WindowRow.create(winfo, currentIncognito);
+        const $row = WindowRow.create(winfo);
         $listFragment.appendChild($row);
         // Populate globals
         $otherWindowRows.push($row);
@@ -109,10 +107,9 @@ const WindowRow = {
     /**
      * Create an other-window row.
      * @param {Winfo} winfo
-     * @param {boolean} currentIncognito
      * @returns {WindowRow$}
      */
-    create(winfo, currentIncognito) {
+    create(winfo) {
         /** @type {WindowRow$} */
         const $row = Template.$window.cloneNode(true);
         WindowRow._hydrate($row, winfo);
@@ -120,10 +117,7 @@ const WindowRow = {
         if (winfo.type !== 'normal') {
             $row.querySelectorAll('button').forEach(disableElement);
             $row.classList.add('tabless');
-        } else
-        // Indicate if a send/bring action to this window will be a reopen operation
-        if (winfo.incognito != currentIncognito)
-            $row.classList.add('reopenTabs');
+        }
         return $row;
     },
 
