@@ -54,7 +54,7 @@ export function handleKeyDown(event) {
 
     isVerticalKey(key)
         ? restrictScroll($el, event)
-        : setColumn($el);
+        : Column.set($el);
 
     $el.focus();
     $el.select?.();
@@ -67,7 +67,7 @@ export function handleKeyDown(event) {
  */
 export function handleKeyUp(event) {
     if (event.key === 'Tab') {
-        setColumn(event.target);
+        Column.set(event.target);
         return true;
     }
 }
@@ -89,23 +89,6 @@ function restrictScroll($el, event) {
     const index = $shownRows.indexOf(row($el));
     if (index < scrollThreshold || ($shownRows.length - index) <= scrollThreshold)
         event.preventDefault(); // Suppress scrolling
-}
-
-/**
- * Currently-focused button column e.g. "send", "bring".
- * @type {string?}
- */
-let column;
-
-/**
- * @param {HTMLElement} $el
- * @modifies column
- */
-function setColumn($el) {
-    column =
-        isRow($el) || isField($el) ? null : // if row or name: null
-        isButton($el) ? $el.dataset.action : // if cell: its action reference ("send", etc)
-        column; // no change
 }
 
 /**
@@ -199,17 +182,35 @@ const Navigator = {
 
 }
 
-/**
- * Return cell at given row and current column.
- * Uses {string?} `column`
- * @param {WindowRow$?} $row
- * @returns {HTMLElement?}
- */
-function columnCell($row) {
-    /** @type {HTMLElement?} */
-    const $cell = $row?.['$'+column];
-    if ($cell && !$cell.disabled)
-        return $cell;
+const Column = {
+    /**
+     * Currently-focused button column e.g. "send", "bring".
+     * @type {string?}
+     */
+    current: null,
+
+    /**
+     * @param {HTMLElement} $el
+     */
+    set($el) {
+        if (isRow($el) || isField($el))
+            Column.current = null;
+        else
+        if (isButton($el))
+            Column.current = $el.dataset.action;
+    },
+
+    /**
+     * Return cell at given row and current column.
+     * @param {WindowRow$?} $row
+     * @returns {HTMLElement?}
+     */
+    getCell($row) {
+        /** @type {HTMLElement?} */
+        const $cell = $row?.['$' + Column.current];
+        if ($cell && !$cell.disabled)
+            return $cell;
+    },
 }
 
 /**
@@ -218,7 +219,7 @@ function columnCell($row) {
  * @param {WindowRow$} $row
  * @returns {WindowRow$ | HTMLElement}
  */
-const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
+const rowOrCell = $row => isEditMode && $row?.$name || Column.getCell($row) || $row;
 
 /**
  * Element's parent row, else assume element is a row.
@@ -227,7 +228,7 @@ const rowOrCell = $row => isEditMode && $row?.$name || columnCell($row) || $row;
  */
 const row = $el => $el.$row || $el;
 
-/** @returns {HTMLElement} */ const currentWindow = () => columnCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
+/** @returns {HTMLElement} */ const currentWindow = () => Column.getCell($currentWindowRow) || $currentWindowRow.$name || $currentWindowRow;
 /** @returns {HTMLElement} */ const toolbar = () => $toolbar.querySelector('button') || $toolbar;
 
 /** @param {HTMLElement} $el @returns {boolean} */ const isCurrentWindow = $el => row($el) === $currentWindowRow;
