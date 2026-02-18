@@ -87,6 +87,10 @@ function onClick(event) {
     const $action = target.closest('[data-action]');
     if ($action?.tabIndex === -1)
         return;
+    if ($action?.dataset.action === 'togglePrivate') {
+        $action.$row.classList.toggle('private');
+        return;
+    }
     Request.action({ event, $action });
 }
 

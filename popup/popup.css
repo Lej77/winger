@@ -92,6 +92,9 @@ body:not(.edit) window-row.stashed {
         cursor: not-allowed;
     }
 }
+#newWindow, #newWindow *:not(.togglePrivate) {
+    cursor: cell;
+}
 
 window-heading {
     display: none;
@@ -284,7 +287,7 @@ button {
     opacity: .7;
 
     body:not(.edit) &:hover,
-    window-row &:focus {
+    window-row &:focus-visible {
         background-color: var(--popup-hover-button-color);
         background-size: 97%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
         opacity: 1;
@@ -315,8 +318,34 @@ button {
     }
     &.send  { background-image: url("../icons/send.svg"); }
     &.bring { background-image: url("../icons/bring.svg"); }
-    &.stash { background-image: url("../icons/stash.svg"); }
-    window-row.stashed &.stash { background-image: url("../icons/unstash.svg"); }
+    &.stash {
+        background-image: url("../icons/stash.svg");
+        window-row.stashed & { background-image: url("../icons/unstash.svg"); }
+    }
+    &.togglePrivate {
+        position: relative;
+        background-image: url("../icons/private.svg");
+        background-size: 70%;
+
+        body:not(.edit) &:hover,
+        window-row &:focus-visible {
+            background-size: 77%; /* Counteract shrinkage caused by focus-ring border, but also a nice hover effect */
+        }
+
+        /* Diagonal slash overlay */
+        window-row.private &::after {
+            content: "";
+            display: block;
+            width: 3px;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 50%;
+            translate: -50%;
+            rotate: 45deg;
+            background-color: var(--popup-private-button-color);
+        }
+    }
 }
 
 

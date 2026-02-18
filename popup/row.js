@@ -100,8 +100,16 @@ const WindowRow = {
         $currentWindowRow.$name.title = '';
 
         // Hydrate new-window row
-        $newWindowRow.classList.toggle('private', fgWinfo.incognito);
         hydrateCellReferences($newWindowRow);
+        const $togglePrivate = $newWindowRow.querySelector('.togglePrivate');
+        if (FLAGS.allow_private) {
+            $newWindowRow.classList.toggle('private', fgWinfo.incognito);
+            $newWindowRow.$togglePrivate = $togglePrivate;
+            $togglePrivate.$row = $newWindowRow;
+            $togglePrivate.hidden = false;
+        } else {
+            $togglePrivate.remove();
+        }
     },
 
     /**

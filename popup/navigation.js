@@ -1,4 +1,5 @@
 import {
+    $newWindowRow,
     $currentWindowRow,
     $omnibox,
     $otherWindowsList,
@@ -196,8 +197,10 @@ const Column = {
         if (isRow($el) || isField($el))
             Column.current = null;
         else
-        if (isButton($el))
-            Column.current = $el.dataset.action;
+        if (isButton($el)) {
+            const action = $el.dataset.action;
+            Column.current = (action === 'togglePrivate') ? 'stash' : action;
+        }
     },
 
     /**
@@ -206,6 +209,8 @@ const Column = {
      * @returns {HTMLElement?}
      */
     getCell($row) {
+        if ($row === $newWindowRow && Column.current === 'stash')
+            return $newWindowRow.$togglePrivate;
         /** @type {HTMLElement?} */
         const $cell = $row?.['$' + Column.current];
         if ($cell && !$cell.disabled)

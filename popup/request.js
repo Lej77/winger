@@ -1,6 +1,6 @@
 /* Send messages to the background frame */
 
-import { $currentWindowRow, $newWindowRow } from './common.js';
+import { $currentWindowRow, $newWindowRow, FLAGS } from './common.js';
 import * as Modifier from '../modifier.js';
 import { getValue } from '../storage.js';
 
@@ -75,6 +75,8 @@ export async function action({ event, command, argument, $action }) {
     if ($row === $newWindowRow) {
         request.argument = $row.$name.value;
         request.action = ({ switch: 'new', send: 'kick', bring: 'pop' })[action];
+        if (FLAGS.allow_private && request.action !== 'new')
+            request.action += $row.classList.contains('private') ? 'private' : 'normal';
     } else
     if ($row.matches('.tabless')) {
         // Disallow send/bring/stash on a "tabless" window

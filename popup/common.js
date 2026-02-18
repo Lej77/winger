@@ -15,6 +15,7 @@ import { NameMap, validify } from '../name.js';
  * @property {NameField$} $name
  * @property {WindowRowCell & HTMLElement} [$tabCount]
  * @property {WindowRowCell & HTMLButtonElement} [$stash]
+ * @property {WindowRowCell & HTMLButtonElement} [$togglePrivate]
  */
 /** @typedef {WindowRowCell & IdStore & HTMLInputElement} NameField$ */
 /** @typedef {{ _id?: WindowId | BNodeId }} IdStore */
