@@ -61,7 +61,7 @@ const isIntersect = (array1, array2) => array1.some(item => array2.includes(item
  */
 async function populate(windows) {
     const doNothing = () => {};
-    const privateIcon = { 16: 'icons/private.svg' };
+    const privateIcon = { 16: 'icons/private-circle.svg' };
     const { fgWinfo, bgWinfos } = Winfo.arrange(
         await Winfo.getAll(['focused', 'givenName', 'incognito', 'lastFocused', 'minimized', 'titleSansName'], windows)
     );
